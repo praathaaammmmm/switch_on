@@ -1,0 +1,1221 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Switch On</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<style>
+/* Layout: a repair docket blown up to poster scale. Black ground, one paper slab and one signal-red band per moment that matters,
+   ultra-condensed oversized caps, hard edges, mono labels, stamps and ruled lines. The octopus artwork is the only illustration. Single dark look by design. */
+:root{
+  color-scheme:dark;
+  --ink:#070606; --ink-2:#0F0C0C; --ink-3:#191415; --line:#2C2324; --line-2:#54464A;
+  --red:#D4122A; --red-hot:#FF2D45; --red-deep:#8E0B1B; --paper:#F3EEE6; --paper-2:#DFD7CB; --pencil:#554B48;
+  --mute:#ABA29E; --mute-2:#7D7373; --crimson:var(--red);
+  --f-display:'Archivo','Arial Narrow','Helvetica Neue',Arial,sans-serif;
+  --f-body:'Instrument Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --f-mono:'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace;
+  --nav-h:64px; --gut:clamp(16px,4vw,40px);
+}
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none!important}
+img{max-width:100%}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--ink);color:var(--paper);font:400 1rem/1.55 var(--f-body);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+h1,h2,h3,p,ul,ol,dl,dd,figure{margin:0}
+ul,ol{padding:0;list-style:none}
+a{color:inherit}
+button,input{font:inherit;color:inherit;border-radius:0}
+:focus-visible{outline:3px solid var(--red-hot);outline-offset:3px}
+section[id]{scroll-margin-top:calc(var(--nav-h) + 12px)}
+.wrap{max-width:1240px;margin-inline:auto;padding-inline:var(--gut)}
+.band{padding-block:clamp(64px,9vw,128px)}
+.ic{width:24px;height:24px;flex:none;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:square;stroke-linejoin:miter}
+.display{font-family:var(--f-display);font-stretch:66%;font-weight:900;text-transform:uppercase;letter-spacing:-.012em;line-height:.86;text-wrap:balance}
+h2.display{font-size:clamp(2.75rem,7.4vw,6.5rem)}
+.eyebrow{display:flex;align-items:center;gap:12px;font:500 .75rem/1.2 var(--f-mono);letter-spacing:.16em;text-transform:uppercase;color:var(--paper)}
+.eyebrow::before{content:"";flex:none;width:10px;height:10px;background:var(--red-hot)}
+.eyebrow::after{content:"";flex:1;min-width:24px;height:1px;background:var(--line-2)}
+.lede{color:var(--mute);font-size:1.0625rem;max-width:56ch}
+.head{display:grid;gap:20px;margin-bottom:clamp(28px,4vw,52px)}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.stamp{display:inline-flex;align-items:center;padding:5px 10px;border:2px solid var(--red);outline:1px solid var(--red);outline-offset:2px;color:var(--red);font:700 .6875rem/1 var(--f-mono);letter-spacing:.16em;text-transform:uppercase;transform:rotate(-5deg);white-space:nowrap}
+.face{display:block;flex:none;width:40px;aspect-ratio:1;overflow:hidden;background:var(--ink);border:1px solid var(--line-2)}
+.face img{display:block;width:285%;height:auto;max-width:none;margin:-29.5% 0 0 -92%}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:12px;min-height:56px;padding:0 24px;border:2px solid transparent;font:700 .875rem/1 var(--f-body);letter-spacing:.07em;text-transform:uppercase;text-decoration:none;cursor:pointer;transition:background .16s,color .16s,border-color .16s,transform .16s}
+.btn .ic{width:20px;height:20px;stroke-width:2;transition:transform .25s cubic-bezier(.2,.7,.2,1)}
+.btn:hover .ic{transform:translateX(5px)}
+.btn:active{transform:translateY(2px)}
+.btn-primary{background:var(--red);border-color:var(--red);color:var(--paper)}
+.btn-primary:hover{background:var(--paper);border-color:var(--paper);color:var(--ink)}
+.btn-ghost{border-color:var(--paper);color:var(--paper);background:transparent}
+.btn-ghost:hover{background:var(--paper);color:var(--ink)}
+.btn-paper{background:var(--paper);border-color:var(--paper);color:var(--ink)}
+.btn-paper:hover{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+.btn-sm{min-height:44px;padding:0 16px;font-size:.8125rem}
+
+/* Nav */
+.nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:40;background:var(--ink);border-bottom:1px solid var(--line-2)}
+.nav .wrap{display:flex;align-items:center;gap:24px;height:var(--nav-h)}
+.logo{display:inline-flex;align-items:center;gap:10px;text-decoration:none;font:900 1.625rem/1 var(--f-display);font-stretch:66%;text-transform:uppercase;letter-spacing:.005em;white-space:nowrap}
+.logo svg{width:34px;height:20px;flex:none}
+.nav-links{display:flex;gap:2px;margin-left:auto}
+.nav-links a{padding:10px 12px;color:var(--mute);text-decoration:none;font:500 .75rem var(--f-mono);letter-spacing:.1em;text-transform:uppercase;white-space:nowrap;transition:color .15s,background .15s}
+.nav-links a:hover{color:var(--ink);background:var(--paper)}
+.nav-menu{display:none;width:44px;height:44px;align-items:center;justify-content:center;border:2px solid var(--paper);background:none;cursor:pointer}
+@media (max-width:1023px){
+  .nav .wrap{gap:10px}
+  .nav-links{display:none;position:absolute;left:0;right:0;top:100%;flex-direction:column;gap:0;margin:0;padding:0 var(--gut) 12px;background:var(--ink);border-bottom:2px solid var(--red)}
+  .nav-links.open{display:flex}
+  .nav-links a{padding:14px 0;border-bottom:1px solid var(--line);font:900 2rem/1 var(--f-display);font-stretch:66%;letter-spacing:0;color:var(--paper)}
+  .nav-links a:hover{background:none;color:var(--red-hot)}
+  .nav-cta{margin-left:auto}
+  .nav-menu{display:inline-flex}
+}
+
+/* Hero */
+.hero{position:relative;overflow:hidden;background:var(--ink)}
+.hero-slab{position:absolute;top:0;bottom:0;left:55vw;right:0;border-left:14px solid var(--red);background-color:var(--paper);background-image:radial-gradient(rgba(7,6,6,.22) 1.2px,transparent 1.5px);background-size:16px 16px}
+.hero-slab::before{content:"";position:absolute;left:50%;top:44%;width:96%;aspect-ratio:1;transform:translate(-50%,-50%);border:2px solid var(--ink);border-radius:50%}
+.hero-slab::after{content:"";position:absolute;left:50%;top:44%;width:78%;aspect-ratio:1;transform:translate(-50%,-50%);background:var(--ink);border-radius:50%}
+.slab-tag{position:absolute;z-index:1;top:16px;padding:5px 8px;border:1px solid var(--ink);background:var(--paper);color:var(--ink);font:700 .6875rem/1 var(--f-mono);letter-spacing:.14em;text-transform:uppercase}
+.slab-tag.t1{left:16px}
+.slab-tag.t2{right:16px;background:var(--ink);color:var(--paper)}
+.hero-grid{display:grid;grid-template-columns:minmax(0,1fr);justify-items:start;gap:clamp(18px,2vw,28px);padding-block:clamp(28px,3.4vw,52px) clamp(36px,4vw,60px)}
+.hero .eyebrow{position:relative;z-index:2;width:min(100%,44vw)}
+.hero h1{position:relative;z-index:2}
+.hero h1 span{display:block}
+.hero h1 .sm{font-size:clamp(1.75rem,4.4vw,4.25rem);line-height:.95}
+.hero h1 .xl{font-size:clamp(5rem,15.6vw,15rem);line-height:.8;letter-spacing:-.02em}
+.hero h1 .red{color:var(--red-hot)}
+.hero-art{position:absolute;z-index:3;left:42vw;top:clamp(4px,1vw,20px);width:min(64vw,1080px);pointer-events:none}
+.hero-art img{display:block;width:100%;height:auto;max-width:none;will-change:transform}
+.report{position:absolute;z-index:4;left:calc(55vw - 150px);bottom:104px;width:280px;background:var(--ink);border:2px solid var(--paper);box-shadow:8px 8px 0 var(--red);font-family:var(--f-mono);transform:rotate(-3deg)}
+.rp-head{display:flex;justify-content:space-between;gap:10px;padding:8px 12px;background:var(--red);font-weight:700;font-size:.6875rem;letter-spacing:.14em;text-transform:uppercase}
+.rp-rows{padding:2px 12px 0}
+.rp-rows div{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px dashed var(--line-2);font-size:.75rem}
+.rp-rows dt{color:var(--mute);text-transform:uppercase;letter-spacing:.08em}
+.rp-rows dd{font-weight:700;text-align:right}
+.rp-verdict{padding:12px 12px 10px;font:900 1.75rem/.9 var(--f-display);font-stretch:66%;text-transform:uppercase}
+.rp-bar{height:20px;margin:0 12px 12px;background:repeating-linear-gradient(90deg,var(--paper) 0 2px,transparent 2px 5px,var(--paper) 5px 6px,transparent 6px 10px,var(--paper) 10px 13px,transparent 13px 15px)}
+.hero-copy{position:relative;z-index:5;display:grid;gap:22px;justify-items:start;max-width:min(44ch,36vw)}
+.hero p.sub{font-size:clamp(1.0625rem,1.4vw,1.1875rem);color:var(--mute)}
+.cta-row{display:flex;flex-wrap:wrap;gap:10px}
+.assure{position:relative;z-index:6;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));background:var(--ink);border-block:1px solid var(--line-2)}
+.assure li{display:flex;align-items:center;gap:12px;padding:18px var(--gut);border-right:1px solid var(--line-2);font:500 .8125rem/1.2 var(--f-mono);letter-spacing:.1em;text-transform:uppercase}
+.assure li:last-child{border-right:0}
+.assure .ic{width:22px;height:22px;padding:4px;background:var(--red);color:var(--paper);stroke-width:2.6}
+@media (max-width:1023px){
+  .hero-slab{display:none}
+  .hero .eyebrow{width:100%}
+  .hero h1 .sm{font-size:9.5vw}
+  .hero h1 .xl{font-size:31vw}
+  .hero-art{position:relative;left:auto;top:auto;width:auto;justify-self:stretch;margin-inline:calc(var(--gut) * -1);height:min(86vw,540px);overflow:hidden;border-top:10px solid var(--red);background-color:var(--paper);background-image:radial-gradient(rgba(7,6,6,.22) 1.2px,transparent 1.5px);background-size:14px 14px}
+  .hero-art::before{content:"";position:absolute;left:50%;top:48%;width:min(80%,470px);aspect-ratio:1;transform:translate(-50%,-50%);background:var(--ink);border-radius:50%}
+  .hero-art::after{content:"Fig. 01 / Technician on call";position:absolute;left:12px;top:12px;padding:5px 8px;border:1px solid var(--ink);background:var(--paper);color:var(--ink);font:700 .625rem/1 var(--f-mono);letter-spacing:.14em;text-transform:uppercase}
+  .hero-art .octo{position:absolute;left:50%;top:-3%;width:min(118%,700px);transform:translateX(-50%)}
+  .report{position:relative;left:auto;bottom:auto;justify-self:end;width:min(290px,88%);margin-top:-92px;margin-right:6px;transform:rotate(-2deg)}
+  .hero-copy{max-width:52ch}
+  .assure{grid-template-columns:minmax(0,1fr)}
+  .assure li{border-right:0;border-bottom:1px solid var(--line);padding-block:14px}
+  .assure li:last-child{border-bottom:0}
+}
+@media (max-width:520px){.cta-row{width:100%}.cta-row .btn{flex:1 1 100%}}
+
+/* Hero interaction layers: glow, reticle, scan lines and the report stamp. Motion lives in the no-preference block below. */
+.hero-slab{overflow:hidden}
+.slab-tag{z-index:2}
+.hero-glow{position:absolute;z-index:1;left:0;top:0;width:560px;height:560px;margin:-280px 0 0 -280px;border-radius:50%;background:radial-gradient(circle,rgba(255,45,69,.5) 0,rgba(255,45,69,.16) 40%,rgba(255,45,69,0) 68%);opacity:0;transition:opacity .45s;pointer-events:none}
+.hero.live .hero-glow{opacity:1}
+.hero-art img{transition:filter .3s}
+.hero.on-octo{cursor:none}
+.hero.on-octo .hero-art img{filter:contrast(1.07) saturate(1.05)}
+.reticle{position:absolute;z-index:7;left:0;top:0;width:0;height:0;pointer-events:none;opacity:0;transition:opacity .18s}
+.hero.on-octo .reticle{opacity:1}
+.reticle i{position:absolute;left:-19px;top:-19px;width:38px;height:38px;border:1.5px solid var(--paper);border-radius:50%;box-shadow:0 0 0 1.5px var(--ink),inset 0 0 0 1.5px var(--ink);scale:1.3;transition:scale .28s cubic-bezier(.2,.7,.2,1)}
+.hero.on-octo .reticle i{scale:1}
+.reticle i::before,.reticle i::after{content:"";position:absolute;background:var(--red-hot)}
+.reticle i::before{left:50%;top:-9px;bottom:-9px;width:2px;margin-left:-1px;clip-path:polygon(0 0,100% 0,100% 12px,0 12px,0 calc(100% - 12px),100% calc(100% - 12px),100% 100%,0 100%)}
+.reticle i::after{top:50%;left:-9px;right:-9px;height:2px;margin-top:-1px;clip-path:polygon(0 0,12px 0,12px 100%,calc(100% - 12px) 100%,calc(100% - 12px) 0,100% 0,100% 100%,0 100%)}
+.reticle b{position:absolute;left:-2px;top:-2px;width:4px;height:4px;background:var(--red-hot)}
+.octo-tip{position:absolute;left:30px;top:24px;display:grid;gap:5px;padding:8px 10px;background:var(--ink);border:1px solid var(--paper);color:var(--mute);font:700 .625rem/1 var(--f-mono);letter-spacing:.14em;text-transform:uppercase;white-space:nowrap;opacity:0;translate:0 6px;transition:opacity .22s .08s,translate .22s .08s}
+.octo-tip span:first-child{display:flex;align-items:center;gap:7px;color:var(--paper)}
+.octo-tip span:first-child::before{content:"";width:6px;height:6px;background:var(--red-hot)}
+.reticle.flip .octo-tip{left:auto;right:30px}
+.hero.on-octo .octo-tip{opacity:1;translate:0 0}
+.report{overflow:hidden}
+.report::after{content:"";position:absolute;left:0;right:0;top:0;height:2px;background:var(--red-hot);box-shadow:0 0 12px 2px rgba(255,45,69,.7);opacity:0;pointer-events:none}
+.rp-stamp{position:absolute;left:50%;top:50%;translate:-50% -50%;rotate:-8deg;padding:9px 14px 6px;background:var(--ink);border:3px solid var(--red-hot);outline:1px solid var(--red-hot);outline-offset:3px;color:var(--red-hot);font:900 2rem/.9 var(--f-display);font-stretch:66%;text-transform:uppercase;white-space:nowrap;opacity:0;pointer-events:none}
+.report.stamped{box-shadow:8px 8px 0 var(--paper)}
+.report.stamped .rp-stamp{opacity:1}
+.cta-scan{position:absolute;z-index:4;left:0;top:0;width:0;height:2px;transform-origin:0 50%;background:var(--red-hot);box-shadow:0 0 10px rgba(255,45,69,.8);clip-path:inset(-10px 100% -10px 0);opacity:0;pointer-events:none;transition:opacity .2s}
+.cta-scan.go{opacity:1;clip-path:inset(-10px 0 -10px 0);transition:clip-path .45s cubic-bezier(.3,.7,.2,1),opacity .1s}
+.pscan{display:none}
+#estimate:focus{outline:none}
+@media (prefers-reduced-motion:no-preference){
+  .hero-art .octo{animation:octoIn .8s cubic-bezier(.2,.7,.2,1) both}
+  .slab-tag.t1,.hero-art::after{animation:tagDrift 9s ease-in-out infinite alternate}
+  .hero-slab .pscan{display:block}
+  .pscan{position:absolute;z-index:1;top:0;bottom:0;left:-90px;width:90px;border-right:2px solid var(--red-hot);background:linear-gradient(90deg,rgba(255,45,69,0),rgba(255,45,69,.16));opacity:0;pointer-events:none;animation:pscan 1.5s .6s cubic-bezier(.4,0,.2,1) 1 both}
+  .report.scan::after{animation:rpScan .7s linear 1}
+  .report.scan .rp-rows div{animation:rpFlick .5s steps(1) 1 both}
+  .report.scan .rp-rows div:nth-child(2){animation-delay:.1s}
+  .report.scan .rp-rows div:nth-child(3){animation-delay:.2s}
+  .report.stamped .rp-stamp{animation:stampIn .26s cubic-bezier(.2,1.3,.4,1) 1}
+  @keyframes octoIn{from{opacity:0;translate:0 26px}to{opacity:1;translate:0 0}}
+  @keyframes tagDrift{from{translate:0 0}to{translate:4px 3px}}
+  @keyframes pscan{0%{opacity:0;left:-90px}8%,92%{opacity:1}100%{opacity:0;left:100%}}
+  @keyframes rpScan{from{opacity:1;top:0}to{opacity:1;top:100%}}
+  @keyframes rpFlick{0%{opacity:.25}30%{opacity:1}45%{opacity:.4}60%,100%{opacity:1}}
+  @keyframes stampIn{from{opacity:0;scale:1.7}to{opacity:1;scale:1}}
+}
+@media (prefers-reduced-motion:no-preference) and (max-width:1023px){.hero-art .pscan{display:block;z-index:2}}
+
+/* Estimator */
+.estimate{border-bottom:1px solid var(--line-2)}
+.est-grid{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:clamp(20px,3vw,40px);align-items:start}
+.est-pick{display:grid;gap:32px;min-width:0}
+.group-label{display:flex;align-items:center;gap:12px;margin-bottom:12px;font:900 1.5rem/1 var(--f-display);font-stretch:66%;text-transform:uppercase}
+.group-label b{display:grid;place-items:center;min-width:26px;height:26px;background:var(--red);color:var(--paper);font:700 .8125rem var(--f-mono)}
+.choices{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.chip{display:flex;flex-direction:column;align-items:flex-start;justify-content:space-between;gap:16px;min-height:100px;padding:14px 16px;background:transparent;border:1px solid var(--line-2);font:800 1.375rem/1 var(--f-display);font-stretch:68%;text-transform:uppercase;letter-spacing:.01em;text-align:left;cursor:pointer;transition:background .14s,border-color .14s,color .14s}
+.chip .ic{color:var(--mute)}
+.chip:hover{border-color:var(--paper);background:var(--ink-3)}
+.chip:hover .ic{color:var(--paper)}
+.chip[aria-pressed="true"]{background:var(--red);border-color:var(--red);box-shadow:5px 5px 0 var(--paper)}
+.chip[aria-pressed="true"] .ic{color:var(--paper)}
+.quote{position:sticky;top:calc(var(--nav-h) + 20px);display:grid;gap:20px;min-width:0;padding:clamp(20px,2.6vw,30px);padding-bottom:calc(clamp(20px,2.6vw,30px) + 14px);background:var(--paper);color:var(--ink);-webkit-mask:conic-gradient(from -45deg at bottom,#0000,#000 1deg 89deg,#0000 90deg) 50%/18px 100%;mask:conic-gradient(from -45deg at bottom,#0000,#000 1deg 89deg,#0000 90deg) 50%/18px 100%}
+.docket-head{display:flex;justify-content:space-between;gap:12px;padding-bottom:12px;border-bottom:3px solid var(--ink);font:700 .6875rem/1 var(--f-mono);letter-spacing:.14em;text-transform:uppercase}
+.quote-for{display:flex;align-items:center;gap:10px;font:900 1.5rem/1 var(--f-display);font-stretch:66%;text-transform:uppercase}
+.quote-for .stamp{margin-left:auto}
+.quote-rows{display:grid;gap:16px}
+.quote-rows dt{font:500 .6875rem var(--f-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--pencil);margin-bottom:4px}
+.quote .price{font:900 clamp(4.25rem,8.6vw,7rem)/.82 var(--f-display);font-stretch:66%;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.quote .price small{font:500 1rem var(--f-body);letter-spacing:0;color:var(--pencil);margin-right:8px}
+.quote .time{font:900 2rem/1 var(--f-display);font-stretch:66%;text-transform:uppercase}
+.quote .fine{display:flex;gap:10px;align-items:flex-start;padding-top:16px;border-top:1px dashed var(--ink);font-size:.9375rem}
+.quote .fine .ic{width:20px;height:20px;margin-top:2px;color:var(--red)}
+.quote .note{font-size:.875rem;color:var(--pencil)}
+.quote .btn{width:100%;background:var(--ink);border-color:var(--ink);color:var(--paper)}
+.quote .btn:hover{background:var(--red);border-color:var(--red)}
+@media (max-width:900px){.est-grid{grid-template-columns:minmax(0,1fr)}.quote{position:static}}
+@media (max-width:520px){.choices{grid-template-columns:repeat(2,minmax(0,1fr))}.chip{min-height:88px;font-size:1.25rem}}
+
+/* Journey: the red band */
+#how{background:var(--red)}
+#how .eyebrow::before{background:var(--ink)}
+#how .eyebrow::after{background:rgba(7,6,6,.45)}
+.steps{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));counter-reset:s;border-top:3px solid var(--ink)}
+.step{display:grid;align-content:start;gap:14px;min-width:0;padding:18px 16px 28px;border-right:1px solid rgba(7,6,6,.4);counter-increment:s;transition:background .18s}
+.step:last-child{border-right:0}
+.step::before{content:"0" counter(s);font:900 clamp(5rem,9.5vw,9rem)/.78 var(--f-display);font-stretch:66%;letter-spacing:-.03em;color:var(--ink);transition:color .18s}
+.step:hover{background:var(--ink)}
+.step:hover::before{color:var(--red-hot)}
+.step .badge{display:grid;place-items:center;width:44px;height:44px;background:var(--ink);color:var(--paper);transition:background .18s}
+.step:hover .badge{background:var(--red)}
+.step h3{font:900 1.625rem/.95 var(--f-display);font-stretch:68%;text-transform:uppercase;text-wrap:balance}
+.step p{font-size:.9375rem}
+@media (max-width:1080px){
+  .steps{grid-template-columns:minmax(0,1fr)}
+  .step{grid-template-columns:clamp(84px,22vw,130px) minmax(0,1fr);column-gap:16px;row-gap:10px;padding:18px 0 22px;border-right:0;border-bottom:1px solid rgba(7,6,6,.4)}
+  .step:last-child{border-bottom:0}
+  .step::before{grid-row:1/4;font-size:clamp(4.5rem,19vw,7rem)}
+  .step .badge,.step h3,.step p{grid-column:2}
+  .step:hover{background:none}
+  .step:hover::before{color:var(--ink)}
+  .step:hover .badge{background:var(--ink)}
+}
+
+/* Popular repairs */
+.popular{padding-bottom:clamp(130px,15vw,200px)}
+.promo-grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));border-top:1px solid var(--line-2);border-left:1px solid var(--line-2)}
+.promo{position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between;gap:40px;min-height:220px;padding:20px;grid-column:span 3;background:transparent;border:0;border-right:1px solid var(--line-2);border-bottom:1px solid var(--line-2);text-align:left;cursor:pointer;transition:background .16s,color .16s}
+.promo:hover{background:var(--red)}
+.promo .art{position:absolute;right:-22px;top:-18px;width:150px;height:150px;stroke-width:.8;color:var(--line-2);transition:color .2s,transform .4s cubic-bezier(.2,.7,.2,1)}
+.promo:hover .art{color:var(--ink);transform:rotate(-8deg) scale(1.08)}
+.promo h3{position:relative;font:900 1.875rem/.92 var(--f-display);font-stretch:68%;text-transform:uppercase;max-width:9ch}
+.promo .meta{position:relative;display:grid;gap:6px}
+.promo .from{font:900 2.75rem/.85 var(--f-display);font-stretch:66%;font-variant-numeric:tabular-nums}
+.promo .from small{font:500 .8125rem var(--f-body);opacity:.8;margin-right:6px}
+.promo .eta{font:500 .75rem var(--f-mono);letter-spacing:.1em;text-transform:uppercase;opacity:.8}
+.promo.feature{grid-column:span 6;grid-row:span 2;background:var(--paper);color:var(--ink);padding:clamp(22px,3vw,36px)}
+.promo.feature:hover{background:var(--red);color:var(--paper)}
+.promo.feature .art{width:min(70%,360px);height:auto;aspect-ratio:1;right:-36px;top:-28px;color:rgba(7,6,6,.2)}
+.promo.feature:hover .art{color:var(--ink)}
+.promo.feature h3{font-size:clamp(3rem,6.6vw,6rem);line-height:.84;max-width:8ch}
+.promo.feature .from{font-size:clamp(4.5rem,9vw,8rem)}
+.promo .go{display:inline-flex;align-items:center;gap:10px;margin-top:10px;font:700 .8125rem var(--f-body);letter-spacing:.07em;text-transform:uppercase}
+.promo .go .ic{width:18px;height:18px;stroke-width:2;transition:transform .25s}
+.promo:hover .go .ic{transform:translateX(5px)}
+@media (max-width:1000px){.promo{grid-column:span 6}.promo.feature{grid-column:span 12;grid-row:auto;min-height:320px}}
+@media (max-width:520px){.promo{min-height:180px;gap:28px;padding:16px}.promo h3{font-size:1.5rem}.promo .from{font-size:2.25rem}.promo .art{width:110px;height:110px}}
+
+/* Pricing: the paper band */
+#pricing{position:relative;background:var(--paper);color:var(--ink)}
+#pricing .eyebrow{color:var(--ink)}
+#pricing .eyebrow::before{background:var(--red)}
+#pricing .eyebrow::after{background:var(--ink)}
+#pricing .lede{color:var(--pencil)}
+.peek{position:absolute;z-index:2;bottom:100%;right:max(var(--gut),9vw);width:clamp(130px,16vw,210px);aspect-ratio:1/.76;overflow:hidden;pointer-events:none}
+.peek{clip-path:polygon(16% 0,100% 0,100% 100%,0 100%,0 24%)}
+.peek img{display:block;width:292%;height:auto;max-width:none;margin:-30.4% 0 0 -96.5%}
+.price-grid{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(0,1fr);gap:24px;align-items:start}
+.table-scroll{overflow-x:auto;border:3px solid var(--ink)}
+table{border-collapse:collapse;width:100%;min-width:680px}
+th,td{padding:14px 16px;text-align:left;border-bottom:1px solid rgba(7,6,6,.28)}
+tr:last-child th,tr:last-child td{border-bottom:0}
+thead th{font:700 .6875rem var(--f-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--paper);background:var(--ink)}
+tbody th{font:900 1.375rem/1 var(--f-display);font-stretch:68%;text-transform:uppercase;white-space:nowrap}
+td b{display:block;font:700 1rem var(--f-mono);font-variant-numeric:tabular-nums}
+td span{font-size:.8125rem;color:var(--pencil)}
+tbody tr{transition:background .12s,color .12s}
+tbody tr:hover{background:var(--red);color:var(--paper)}
+tbody tr:hover td span{color:var(--paper)}
+.covers{display:grid;gap:22px;padding:24px;border:3px solid var(--ink);min-width:0}
+.covers h3{font:900 1.625rem/.95 var(--f-display);font-stretch:68%;text-transform:uppercase}
+.ticks{display:grid;gap:10px;color:var(--mute);font-size:.9375rem}
+.ticks li{display:flex;gap:10px;align-items:flex-start}
+.ticks .ic{width:18px;height:18px;margin-top:3px;color:var(--red-hot);stroke-width:2.2}
+.ticks.no .ic{color:var(--mute-2)}
+#pricing .ticks{color:#2E2725}
+#pricing .ticks .ic{color:var(--red)}
+#pricing .ticks.no .ic{color:var(--ink)}
+.caption{margin-top:12px;font:500 .75rem var(--f-mono);letter-spacing:.04em;color:var(--mute-2)}
+#pricing .caption{color:var(--pencil)}
+@media (max-width:1000px){.price-grid{grid-template-columns:minmax(0,1fr)}}
+
+/* Track */
+.track-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:clamp(28px,5vw,72px);align-items:start}
+.track-grid h2.display,.why-grid h2.display,.faq-grid h2.display{font-size:clamp(2.75rem,5.8vw,5.25rem)}
+.track-form{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.track-form input{flex:1 1 180px;min-width:0}
+input[type=text],input[type=tel]{width:100%;min-height:56px;padding:0 16px;background:transparent;border:2px solid var(--line-2);font-size:1rem;transition:border-color .15s}
+input::placeholder{color:var(--mute-2)}
+input:focus{outline:none;border-color:var(--paper)}
+.ticket{min-width:0;padding:clamp(20px,3vw,32px);border:2px solid var(--paper);box-shadow:10px 10px 0 var(--red)}
+.ticket-top{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:10px 20px;padding-bottom:20px;margin-bottom:24px;border-bottom:1px dashed var(--paper)}
+.ticket-top .id{font:900 clamp(2.75rem,6vw,4.25rem)/.85 var(--f-display);font-stretch:66%;letter-spacing:-.01em}
+.tag{display:inline-flex;align-items:center;padding:5px 9px;background:var(--red);font:700 .6875rem/1 var(--f-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--paper)}
+.timeline{display:grid}
+.timeline li{position:relative;display:grid;grid-template-columns:28px minmax(0,1fr);gap:16px;padding-bottom:22px}
+.timeline li:last-child{padding-bottom:0}
+.timeline li::before{content:"";position:absolute;left:13px;top:28px;bottom:0;width:2px;background:var(--line-2)}
+.timeline li:last-child::before{display:none}
+.timeline .dot{display:grid;place-items:center;width:28px;height:28px;border:2px solid var(--line-2);background:var(--ink)}
+.timeline .dot .ic{width:14px;height:14px;stroke-width:3;display:none}
+.timeline .done .dot{background:var(--paper);border-color:var(--paper);color:var(--ink)}
+.timeline .done .dot .ic{display:block}
+.timeline .done::before{background:var(--paper)}
+.timeline .now .dot{border-color:var(--red-hot);background:var(--red-hot);box-shadow:0 0 0 4px var(--ink),0 0 0 6px var(--red-hot)}
+.timeline b{display:block;font:900 1.375rem/1.05 var(--f-display);font-stretch:68%;text-transform:uppercase}
+.timeline span{font-size:.875rem;color:var(--mute)}
+.timeline .now b{color:var(--red-hot)}
+.timeline .todo b{color:var(--mute-2)}
+@media (max-width:860px){.track-grid{grid-template-columns:minmax(0,1fr)}.ticket{box-shadow:6px 6px 0 var(--red);margin-right:6px}}
+
+/* Why */
+#why{border-top:1px solid var(--line-2)}
+.why-grid{display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr);gap:clamp(28px,5vw,80px);align-items:start}
+.why-grid .head{position:sticky;top:calc(var(--nav-h) + 28px);margin:0}
+.why-list li{display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px 20px;padding-block:24px;border-top:2px solid var(--paper)}
+.why-list li:last-child{border-bottom:2px solid var(--paper)}
+.why-list .ic{width:30px;height:30px;color:var(--red-hot);grid-row:span 2;margin-top:6px}
+.why-list h3{font:900 clamp(2.25rem,4.8vw,4.25rem)/.86 var(--f-display);font-stretch:66%;text-transform:uppercase;transition:color .15s}
+.why-list li:hover h3{color:var(--red-hot)}
+.why-list p{color:var(--mute);max-width:52ch}
+@media (max-width:860px){.why-grid{grid-template-columns:minmax(0,1fr)}.why-grid .head{position:static}}
+
+/* Partners */
+.partners{background:var(--ink-2);border-block:1px solid var(--line-2)}
+.partners .head{position:relative}
+.partners .stamp{justify-self:start;padding:9px 14px;border-width:3px;border-color:var(--red-hot);outline-color:var(--red-hot);outline-offset:3px;color:var(--red-hot);font-size:.8125rem;transform:rotate(-6deg);margin-block:6px 2px}
+.checks{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-top:2px solid var(--paper);border-left:1px solid var(--line-2)}
+.checks li{display:grid;align-content:start;gap:14px;min-width:0;padding:24px 20px 28px;border-right:1px solid var(--line-2);border-bottom:1px solid var(--line-2)}
+.checks .ic{width:30px;height:30px;color:var(--red-hot)}
+.checks h3{font:900 1.75rem/.92 var(--f-display);font-stretch:68%;text-transform:uppercase}
+.checks p{font-size:.9375rem;color:var(--mute)}
+.handover{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px 32px;margin-top:24px;padding:18px 20px;border:1px dashed var(--line-2);color:var(--mute);font-size:.9375rem}
+.handover b{display:block;color:var(--paper);font:700 .6875rem var(--f-mono);letter-spacing:.14em;text-transform:uppercase;margin-bottom:4px}
+@media (max-width:1000px){.checks{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:700px){.handover{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:520px){.checks{grid-template-columns:minmax(0,1fr)}}
+
+/* Shops band */
+.shops{background:var(--red)}
+.shops .wrap{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:clamp(24px,5vw,72px);align-items:end}
+.shops .eyebrow::before{background:var(--ink)}
+.shops .eyebrow::after{background:rgba(7,6,6,.45)}
+.shops h2{margin-block:18px 26px}
+.shops .ticks{color:var(--paper);font-size:1.0625rem;gap:0;border-top:3px solid var(--ink)}
+.shops .ticks li{padding-block:14px;border-bottom:1px solid rgba(7,6,6,.4)}
+.shops .ticks .ic{color:var(--ink);width:20px;height:20px}
+@media (max-width:860px){.shops .wrap{grid-template-columns:minmax(0,1fr)}}
+
+/* Warranty + terms */
+.cover-grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:clamp(24px,4vw,56px);align-items:start}
+.warranty{display:grid;gap:26px;min-width:0}
+.warranty .big{font:900 clamp(11rem,31vw,25rem)/.72 var(--f-display);font-stretch:66%;letter-spacing:-.04em;color:var(--red-hot)}
+.warranty .big span{display:block;margin-top:.5em;font-size:clamp(1.75rem,3.4vw,2.75rem);line-height:.9;letter-spacing:0;text-transform:uppercase;color:var(--paper)}
+.warranty .cols{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;padding-top:22px;border-top:2px solid var(--paper)}
+.warranty h3,.terms h3{font:700 .6875rem var(--f-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--mute);margin-bottom:12px}
+.warranty .ticks{color:var(--paper)}
+.terms{min-width:0;padding:clamp(22px,3vw,36px);border:2px solid var(--paper)}
+.terms h2{font:900 clamp(2.25rem,4.2vw,3.5rem)/.86 var(--f-display);font-stretch:66%;text-transform:uppercase;margin-bottom:22px}
+.terms h3{margin:0 0 10px}
+.terms dl{display:grid}
+.terms dl div{display:grid;gap:4px;padding-block:14px;border-top:1px dashed var(--line-2)}
+.terms dt{font:700 .75rem var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--red-hot)}
+.terms dd{color:var(--paper);font-size:.9375rem}
+@media (max-width:900px){.cover-grid{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:480px){.warranty .cols{grid-template-columns:minmax(0,1fr)}}
+
+/* FAQ */
+.faq-grid{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:clamp(28px,5vw,80px);align-items:start}
+.faq details{border-top:2px solid var(--paper)}
+.faq details:last-child{border-bottom:2px solid var(--paper)}
+.faq summary{display:flex;justify-content:space-between;align-items:center;gap:20px;padding-block:20px;font:900 clamp(1.5rem,2.6vw,2.125rem)/.95 var(--f-display);font-stretch:68%;text-transform:uppercase;cursor:pointer;list-style:none}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:"";flex:none;width:18px;height:18px;background:linear-gradient(currentColor,currentColor) center/100% 3px no-repeat,linear-gradient(currentColor,currentColor) center/3px 100% no-repeat;transition:transform .25s}
+.faq details[open] summary::after{transform:rotate(45deg)}
+.faq details[open] summary,.faq summary:hover{color:var(--red-hot)}
+.faq details p{padding-bottom:22px;color:var(--mute);max-width:62ch}
+.help-card{display:grid;gap:8px;margin-top:8px;padding:18px 20px;border:1px dashed var(--line-2);color:var(--mute);font-size:.9375rem}
+.help-card b{color:var(--paper);font:700 .6875rem var(--f-mono);letter-spacing:.14em;text-transform:uppercase}
+@media (max-width:860px){.faq-grid{grid-template-columns:minmax(0,1fr)}}
+
+/* Footer */
+footer.site{overflow:hidden;border-top:1px solid var(--line-2);padding-top:28px;color:var(--mute-2);font:500 .75rem var(--f-mono);letter-spacing:.08em;text-transform:uppercase}
+footer.site .wrap{display:flex;flex-wrap:wrap;gap:16px 32px;align-items:center;justify-content:space-between}
+footer.site nav{display:flex;flex-wrap:wrap;gap:6px 22px}
+footer.site nav a{color:var(--mute);text-decoration:none}
+footer.site nav a:hover{color:var(--red-hot)}
+.mega{margin:28px 0 -.13em;font:900 22.5vw/.74 var(--f-display);font-stretch:66%;letter-spacing:-.01em;text-align:center;white-space:nowrap;color:var(--red);user-select:none}
+
+/* Booking dialog */
+dialog#book{width:min(720px,100%);max-width:100%;max-height:min(860px,100%);padding:0;border:2px solid var(--paper);background:var(--ink);color:var(--paper);overflow:hidden}
+dialog#book::backdrop{background:rgba(7,6,6,.84)}
+dialog#book[open]{display:flex;flex-direction:column}
+.bk-top{display:flex;align-items:center;gap:12px;padding:14px 20px;border-bottom:1px solid var(--line-2)}
+.bk-top h2{font:500 .75rem var(--f-mono);letter-spacing:.14em;text-transform:uppercase;margin-right:auto}
+.bk-top .face{width:36px}
+.icon-btn{display:grid;place-items:center;width:44px;height:44px;border:2px solid var(--line-2);background:none;cursor:pointer}
+.icon-btn:hover{border-color:var(--paper);background:var(--paper);color:var(--ink)}
+.bk-steps{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;padding:16px 20px 0}
+.bk-steps button{display:grid;gap:8px;width:100%;padding:0;background:none;border:0;text-align:left;font:500 .6875rem var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--mute-2);cursor:default}
+.bk-steps button::before{content:"";height:6px;background:var(--line-2);transition:background .25s}
+.bk-steps .done button{color:var(--mute);cursor:pointer}
+.bk-steps .done button::before{background:var(--paper)}
+.bk-steps .now button{color:var(--paper)}
+.bk-steps .now button::before{background:var(--red-hot)}
+.bk-body{flex:1;overflow-y:auto;padding:22px 20px 24px;display:grid;gap:20px;align-content:start}
+.bk-guide{display:flex;gap:12px;align-items:center;padding:10px 12px;border:1px dashed var(--line-2);color:var(--mute);font-size:.9375rem}
+.bk-panel h3{font:900 clamp(2.25rem,6vw,3.25rem)/.86 var(--f-display);font-stretch:66%;text-transform:uppercase;margin-bottom:18px}
+.fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.field{display:grid;gap:6px;min-width:0}
+.field.full{grid-column:1/-1}
+.field label{font-weight:600;font-size:.9375rem}
+.field .err{font-size:.8125rem;color:var(--red-hot);min-height:1.1em}
+.field.bad input{border-color:var(--red-hot)}
+.days{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:16px}
+.slots{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.opt{min-height:62px;padding:10px 14px;background:transparent;border:1px solid var(--line-2);font-weight:600;text-align:left;cursor:pointer;transition:background .14s,border-color .14s}
+.opt small{display:block;font-weight:400;font-size:.8125rem;color:var(--mute)}
+.opt:hover:not(:disabled){border-color:var(--paper)}
+.opt[aria-pressed="true"]{background:var(--red);border-color:var(--red)}
+.opt[aria-pressed="true"] small{color:var(--paper)}
+.opt:disabled{opacity:.4;cursor:not-allowed}
+.slot-err{color:var(--red-hot);font-size:.875rem;min-height:1.2em;margin-top:10px}
+.review{display:grid}
+.review div{display:grid;grid-template-columns:130px minmax(0,1fr) auto;gap:12px;align-items:baseline;padding-block:14px;border-top:1px dashed var(--line-2)}
+.review dt{color:var(--mute);font:500 .6875rem var(--f-mono);letter-spacing:.12em;text-transform:uppercase}
+.review dd{font-weight:600;overflow-wrap:anywhere}
+.link{background:none;border:0;padding:4px;color:var(--red-hot);font-weight:600;font-size:.875rem;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.bk-sum{display:flex;flex-wrap:wrap;gap:4px 18px;align-items:baseline;padding:12px 20px;background:var(--paper);color:var(--ink);font-size:.9375rem}
+.bk-sum b{font:700 1.0625rem var(--f-mono)}
+.bk-foot{display:flex;gap:10px;padding:16px 20px;border-top:1px solid var(--line-2)}
+.bk-foot .btn-primary{flex:1}
+.done-id{font:900 clamp(3.5rem,12vw,5.5rem)/.85 var(--f-display);font-stretch:66%;color:var(--red-hot);margin-block:8px 18px}
+.proto{padding:12px 14px;border:1px dashed var(--line-2);font-size:.875rem;color:var(--mute)}
+@media (max-width:600px){
+  dialog#book{width:100%;height:100%;max-height:100%;border:0}
+  .bk-steps button span{display:none}
+  .fields{grid-template-columns:minmax(0,1fr)}
+  .days{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .review div{grid-template-columns:minmax(0,1fr) auto}
+  .review dt{grid-column:1/-1}
+}
+
+#toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));z-index:60;transform:translate(-50%,20px);max-width:calc(100% - 32px);padding:14px 18px;background:var(--paper);color:var(--ink);border:2px solid var(--ink);box-shadow:5px 5px 0 var(--red);font-weight:600;font-size:.9375rem;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important}
+}
+
+/* ---------- Site-wide interaction: reactive background, diagnostic cursor, tactile buttons ---------- */
+/* Background layer sits behind all content. Dark sections are transparent so it shows through; red and paper bands cover it. */
+main,footer.site{position:relative;z-index:1}
+.fx-bg{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;--px:-999;--py:-999;--mx:0;--my:0}
+.fx-dots{position:absolute;inset:-24px;background-image:radial-gradient(rgba(243,238,230,.085) 1px,transparent 1.4px);background-size:28px 28px;translate:calc(var(--mx) * -7px) calc(var(--my) * -7px)}
+.fx-glow{position:absolute;left:0;top:0;width:900px;height:900px;margin:-450px 0 0 -450px;border-radius:50%;background:radial-gradient(circle,rgba(212,18,42,.22) 0,rgba(212,18,42,.08) 38%,rgba(212,18,42,0) 68%);translate:calc(var(--px) * 1px) calc(var(--py) * 1px);opacity:0;transition:opacity .5s}
+.fx-noise{position:absolute;left:0;top:0;width:440px;height:440px;margin:-220px 0 0 -220px;background:repeating-linear-gradient(0deg,rgba(243,238,230,.07) 0 1px,transparent 1px 4px),repeating-linear-gradient(90deg,rgba(255,45,69,.05) 0 1px,transparent 1px 22px);-webkit-mask:radial-gradient(circle,#000 0,transparent 68%);mask:radial-gradient(circle,#000 0,transparent 68%);translate:calc(var(--px) * 1px) calc(var(--py) * 1px);opacity:0;transition:opacity 1.1s}
+.fx-bg.on .fx-glow{opacity:1}
+.fx-bg.moving .fx-noise{opacity:1;transition-duration:.25s}
+.hero{background:none}
+.partners{background:none}
+
+/* Cursor: inner dot follows closely, outer ring trails. Built by script only for mouse users without reduced motion. */
+html.cur-on,html.cur-on *{cursor:none!important}
+html.cur-on input,html.cur-on textarea,html.cur-on select{cursor:text!important}
+#cur{position:fixed;left:0;top:0;z-index:100;pointer-events:none;opacity:0;transition:opacity .2s;--s:1}
+html.cur-on #cur{opacity:1}
+html.cur-on #cur.is-text,html.cur-on #cur.is-out{opacity:0}
+.cur-dot,.cur-ring{position:absolute;left:0;top:0;will-change:transform}
+.cur-dot i{position:absolute;left:-3px;top:-3px;width:6px;height:6px;background:var(--red-hot);box-shadow:0 0 0 1px var(--ink);transition:scale .18s}
+.cur-ring i{position:absolute;left:-17px;top:-17px;width:34px;height:34px;border:1.5px solid var(--paper);border-radius:50%;box-shadow:0 0 0 1.5px rgba(7,6,6,.8),inset 0 0 0 1.5px rgba(7,6,6,.8);scale:var(--s);transition:scale .2s cubic-bezier(.2,.7,.2,1),border-color .2s,background .2s,box-shadow .2s}
+.cur-ring em{position:absolute;inset:-1.5px;animation:curSpin 14s linear infinite}
+.cur-ring em::before,.cur-ring em::after{content:"";position:absolute;background:var(--red-hot)}
+.cur-ring em::before{left:50%;top:-8px;bottom:-8px;width:2px;margin-left:-1px;clip-path:polygon(0 0,100% 0,100% 10px,0 10px,0 calc(100% - 10px),100% calc(100% - 10px),100% 100%,0 100%)}
+.cur-ring em::after{top:50%;left:-8px;right:-8px;height:2px;margin-top:-1px;clip-path:polygon(0 0,10px 0,10px 100%,calc(100% - 10px) 100%,calc(100% - 10px) 0,100% 0,100% 100%,0 100%)}
+html:has(.hero.on-octo) #cur{--s:1.22}
+#cur.is-hot{--s:1.5}
+#cur.is-hot .cur-ring i{border-color:var(--red-hot);background:rgba(255,45,69,.14);box-shadow:0 0 0 1.5px rgba(7,6,6,.8),0 0 18px rgba(255,45,69,.55)}
+#cur.is-hot .cur-dot i{scale:.7}
+#cur.is-lock .cur-ring i{animation:curLock .28s cubic-bezier(.3,.7,.2,1) 1}
+#cur.is-lock .cur-dot i{animation:curFlash .28s ease-out 1}
+@keyframes curSpin{to{rotate:360deg}}
+@keyframes curLock{0%,100%{scale:var(--s)}40%{scale:.55}}
+@keyframes curFlash{0%,100%{scale:1}35%{scale:2.8;background:var(--paper)}}
+.reticle i,.reticle b{display:none}
+.octo-tip{left:38px;top:30px}
+.reticle.flip .octo-tip{right:38px}
+
+/* Buttons: lift on hover, one sheen pass, compress on press. */
+.btn{position:relative;overflow:hidden;transition:background .18s,color .18s,border-color .18s,box-shadow .18s,transform .18s cubic-bezier(.2,.7,.2,1)}
+.btn::after{content:"";position:absolute;top:-30%;bottom:-30%;left:0;width:36%;background:linear-gradient(100deg,rgba(255,255,255,0),rgba(255,255,255,.38),rgba(255,255,255,0));transform:translateX(-170%) skewX(-22deg);pointer-events:none}
+.btn-paper::after,.btn-ghost::after{background:linear-gradient(100deg,rgba(255,45,69,0),rgba(255,45,69,.3),rgba(255,45,69,0))}
+.quote .btn::after{background:linear-gradient(100deg,rgba(255,255,255,0),rgba(255,255,255,.38),rgba(255,255,255,0))}
+.chip,.opt{transition:background .14s,border-color .14s,color .14s,box-shadow .16s,transform .16s cubic-bezier(.2,.7,.2,1)}
+.icon-btn,.nav-menu,.promo{transition:background .16s,border-color .16s,color .16s,transform .16s cubic-bezier(.2,.7,.2,1)}
+@media (hover:hover){
+  .btn:hover{transform:translateY(-3px)}
+  .btn:hover::after{transform:translateX(440%) skewX(-22deg);transition:transform .5s cubic-bezier(.3,.6,.3,1)}
+  .btn-primary:hover{background:#DC142D;border-color:var(--red-hot);color:var(--paper);box-shadow:0 5px 0 var(--red-deep),0 0 26px rgba(255,45,69,.45)}
+  .btn-ghost:hover{background:var(--paper);color:var(--ink);box-shadow:0 5px 0 var(--red)}
+  .btn-paper:hover{background:var(--ink);border-color:var(--ink);color:var(--paper);box-shadow:0 5px 0 rgba(7,6,6,.5)}
+  .quote .btn:hover{background:var(--red);border-color:var(--red);box-shadow:0 5px 0 var(--ink)}
+  .chip:hover,.opt:hover:not(:disabled),.icon-btn:hover,.nav-menu:hover{transform:translateY(-2px)}
+}
+.btn:active,.btn:hover:active{transform:translateY(1px) scale(.985);box-shadow:0 1px 0 rgba(7,6,6,.6)}
+.btn-primary:active,.btn-primary:hover:active{box-shadow:0 1px 0 var(--red-deep),0 0 34px rgba(255,45,69,.6)}
+.chip:active,.opt:active:not(:disabled),.icon-btn:active,.nav-menu:active{transform:translateY(1px) scale(.985)}
+.promo:active{transform:scale(.992)}
+.btn:disabled{transform:none!important;box-shadow:none!important;cursor:not-allowed}
+.btn:disabled::after{display:none}
+</style>
+</head>
+<body>
+<div class="fx-bg" aria-hidden="true"><span class="fx-dots"></span><span class="fx-glow"></span><span class="fx-noise"></span></div>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-phone" viewBox="0 0 24 24"><rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M11 18.5h2"/></symbol>
+    <symbol id="i-laptop" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="11" rx="1.5"/><path d="M2 19h20"/></symbol>
+    <symbol id="i-tablet" viewBox="0 0 24 24"><rect x="4.5" y="2.5" width="15" height="19" rx="2.5"/><path d="M11 18.5h2"/></symbol>
+    <symbol id="i-pc" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M9 20h6M12 16v4"/></symbol>
+    <symbol id="i-wearable" viewBox="0 0 24 24"><rect x="7" y="7" width="10" height="10" rx="3"/><path d="M9 7l.7-4h4.6l.7 4M9 17l.7 4h4.6l.7-4"/></symbol>
+    <symbol id="i-audio" viewBox="0 0 24 24"><path d="M4 14v-2a8 8 0 0116 0v2"/><rect x="3" y="14" width="4" height="6" rx="1.5"/><rect x="17" y="14" width="4" height="6" rx="1.5"/></symbol>
+    <symbol id="i-screen" viewBox="0 0 24 24"><rect x="6" y="2.5" width="12" height="19" rx="2.5"/><path d="M10 2.5l2.5 6-3 3.5 3.5 4M12.5 8.5l5.5 2"/></symbol>
+    <symbol id="i-battery" viewBox="0 0 24 24"><rect x="3" y="8" width="16" height="8" rx="2"/><path d="M21.5 11v2M7 10.5v3M10 10.5v3"/></symbol>
+    <symbol id="i-charging" viewBox="0 0 24 24"><path d="M13 2.5L5.5 13.5H12l-1 8 7.5-11H12z"/></symbol>
+    <symbol id="i-water" viewBox="0 0 24 24"><path d="M12 3c3.5 4.2 6 7.3 6 10.5a6 6 0 01-12 0C6 10.3 8.5 7.2 12 3z"/></symbol>
+    <symbol id="i-performance" viewBox="0 0 24 24"><path d="M4 17a8 8 0 1116 0M12 17l4-6M3 20h18"/></symbol>
+    <symbol id="i-other" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 114 2c-.9.6-1.5 1.1-1.5 2.2M12 17h.01"/></symbol>
+    <symbol id="i-describe" viewBox="0 0 24 24"><path d="M4 5h16v11H10l-4 3.5V16H4z"/><path d="M8 9h8M8 12h5"/></symbol>
+    <symbol id="i-estimate" viewBox="0 0 24 24"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/></symbol>
+    <symbol id="i-pickup" viewBox="0 0 24 24"><path d="M3 8l9-4 9 4v9l-9 4-9-4z"/><path d="M3 8l9 4 9-4M12 12v9"/></symbol>
+    <symbol id="i-repair" viewBox="0 0 24 24"><path d="M15 4a4.5 4.5 0 00-4.3 6L4 16.7V20h3.3l6.7-6.7A4.5 4.5 0 0020 9l-3 3-3-3 3-3a4.5 4.5 0 00-2-2z"/></symbol>
+    <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 11l9-7 9 7M5.5 9.5V20h13V9.5M10 20v-5h4v5"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l7 2.5v6c0 4.5-3 7.8-7 9.5-4-1.7-7-5-7-9.5v-6z"/><path d="M9 12l2.2 2.2L15 10"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+    <symbol id="i-back" viewBox="0 0 24 24"><path d="M19 12H5M11 6l-6 6 6 6"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+    <symbol id="i-tag" viewBox="0 0 24 24"><path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="8.5" r="1.3"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+    <symbol id="i-id" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2"/><path d="M6 16c.6-1.6 1.7-2.3 3-2.3s2.4.7 3 2.3M15 10h3M15 13h3"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.3 5.9.9-4.2 4.1 1 5.8L12 16.9l-5.3 2.7 1-5.8L3.5 9.7l5.9-.9z"/></symbol>
+    <symbol id="i-chip" viewBox="0 0 24 24"><rect x="7" y="7" width="10" height="10" rx="1.5"/><path d="M10 3v4M14 3v4M10 17v4M14 17v4M3 10h4M3 14h4M17 10h4M17 14h4"/></symbol>
+  </defs>
+</svg>
+
+<header class="nav">
+  <div class="wrap">
+    <a class="logo" href="#top" aria-label="Switch On home">
+      <svg viewBox="0 0 38 22" aria-hidden="true"><rect width="38" height="22" fill="var(--red)"/><rect x="20" y="4" width="14" height="14" fill="var(--paper)"/></svg>
+      Switch On
+    </a>
+    <nav class="nav-links" id="navLinks" aria-label="Main">
+      <a href="#how">How it works</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#track">Track repair</a>
+      <a href="#shops">For repair shops</a>
+      <a href="#help">Help</a>
+    </nav>
+    <a class="btn btn-primary btn-sm nav-cta" href="#estimate">Get estimate</a>
+    <button class="nav-menu" id="navMenu" type="button" aria-label="Menu" aria-expanded="false" aria-controls="navLinks"><svg class="ic"><use href="#i-menu"/></svg></button>
+  </div>
+</header>
+
+<main id="top">
+<section class="hero">
+  <div class="hero-slab" aria-hidden="true">
+    <span class="slab-tag t1">Fig. 01 / Technician on call</span>
+    <span class="slab-tag t2">8 arms · 8 tools</span>
+    <span class="hero-glow"></span><span class="pscan"></span>
+  </div>
+  <div class="wrap hero-grid">
+    <p class="eyebrow">Diagnose first · repair with confidence</p>
+    <h1 class="display"><span class="sm">Know the</span> <span class="xl">fault.</span> <span class="sm">Know the</span> <span class="xl red">price.</span></h1>
+    <figure class="hero-art">
+      <div class="octo"><img id="heroOcto" src="assets/exec-5a188e74-40c3-481e-85a4-bf4879485265.png" width="1254" height="1254" alt="Switch On's octopus technician holding a heat gun, a cracked phone, tweezers, a multimeter, a battery, earbuds, a tablet and a laptop"></div>
+      <span class="pscan" aria-hidden="true"></span>
+    </figure>
+    <aside class="report" aria-label="Preliminary diagnosis report">
+      <p class="rp-head"><span>Preliminary report</span><span>SO / DIAG</span></p>
+      <dl class="rp-rows">
+        <div><dt>Symptom</dt><dd id="rpFor">Phone · Screen</dd></div>
+        <div><dt>Estimate</dt><dd id="rpPrice">from ₹1,499</dd></div>
+        <div><dt>Repair time</dt><dd id="rpTime">3 to 4 hours</dd></div>
+      </dl>
+      <p class="rp-verdict">Clear symptom. Clear next step.</p>
+      <div class="rp-bar" aria-hidden="true"></div>
+      <span class="rp-stamp" aria-hidden="true">Check started</span>
+    </aside>
+    <div class="hero-copy">
+      <p class="sub">Run a quick guided check, see a transparent estimate, then let a verified local expert repair it—without the shop visit.</p>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="#estimate" id="heroCta">Start free device check <svg class="ic"><use href="#i-arrow"/></svg></a>
+        <a class="btn btn-ghost" href="#how">How it stays fair</a>
+      </div>
+    </div>
+  </div>
+  <div class="reticle" aria-hidden="true"><i></i><b></b><p class="octo-tip"><span>System online</span><span>8 arms · 8 tools</span></p></div>
+  <span class="cta-scan" aria-hidden="true"></span>
+  <ul class="assure">
+    <li><svg class="ic"><use href="#i-check"/></svg>Free pickup and return</li>
+    <li><svg class="ic"><use href="#i-check"/></svg>Pay after the repair</li>
+    <li><svg class="ic"><use href="#i-check"/></svg>90-day warranty</li>
+  </ul>
+</section>
+
+<section class="estimate band" id="estimate">
+  <div class="wrap">
+    <div class="head">
+      <p class="eyebrow">Estimate in two taps</p>
+      <h2 class="display">Start your repair</h2>
+      <p class="lede">Pick your device and what’s wrong. You’ll see a base price and repair time straight away.</p>
+    </div>
+    <div class="est-grid">
+      <div class="est-pick">
+        <div>
+          <p class="group-label" id="lblDevice"><b>1</b>Which device?</p>
+          <div class="choices" id="estDevices" role="group" aria-labelledby="lblDevice"></div>
+        </div>
+        <div>
+          <p class="group-label" id="lblIssue"><b>2</b>What’s the issue?</p>
+          <div class="choices" id="estIssues" role="group" aria-labelledby="lblIssue"></div>
+        </div>
+      </div>
+      <aside class="quote" aria-live="polite">
+        <p class="docket-head"><span>Preliminary estimate</span><span>SO / EST</span></p>
+        <p class="quote-for"><svg class="ic"><use id="qIcon" href="#i-phone"/></svg><span id="qFor">Phone · Screen</span><span class="stamp">Base price</span></p>
+        <dl class="quote-rows">
+          <div><dt>Estimated base price</dt><dd class="price"><small>from</small><span id="qPrice">₹1,499</span></dd></div>
+          <div><dt>Estimated repair time</dt><dd class="time" id="qTime">3 to 4 hours</dd></div>
+        </dl>
+        <p class="note" id="qNote" hidden></p>
+        <p class="fine"><svg class="ic"><use href="#i-shield"/></svg><span><b>Final quote after diagnosis.</b> You approve it before any work starts.</span></p>
+        <button class="btn btn-paper" type="button" id="estBook">Schedule doorstep pickup <svg class="ic"><use href="#i-arrow"/></svg></button>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<section class="band" id="how">
+  <div class="wrap">
+    <div class="head">
+      <p class="eyebrow">How it works</p>
+      <h2 class="display">Five steps. You stay home for all of them.</h2>
+    </div>
+    <ol class="steps">
+      <li class="step"><span class="badge"><svg class="ic"><use href="#i-describe"/></svg></span><h3>Describe your problem</h3><p>Choose your device and the issue. It takes two taps.</p></li>
+      <li class="step"><span class="badge"><svg class="ic"><use href="#i-estimate"/></svg></span><h3>Review base estimate and turnaround time</h3><p>See the price and repair time before you book anything.</p></li>
+      <li class="step"><span class="badge"><svg class="ic"><use href="#i-pickup"/></svg></span><h3>Home pickup by a verified partner</h3><p>Your device is sealed and photographed at your door.</p></li>
+      <li class="step"><span class="badge"><svg class="ic"><use href="#i-repair"/></svg></span><h3>Expert repair and quality check</h3><p>You approve the final quote, then a local shop fixes and tests it.</p></li>
+      <li class="step"><span class="badge"><svg class="ic"><use href="#i-home"/></svg></span><h3>Safe delivery back to your home</h3><p>Check it works, then pay. Your warranty starts that day.</p></li>
+    </ol>
+  </div>
+</section>
+
+<section class="popular band" id="popular">
+  <div class="wrap">
+    <div class="head">
+      <p class="eyebrow">Popular repairs</p>
+      <h2 class="display">The fixes people book most</h2>
+    </div>
+    <div class="promo-grid">
+      <button class="promo feature" type="button" data-d="phone" data-i="screen">
+        <svg class="ic art"><use href="#i-screen"/></svg>
+        <h3>Phone screen replacement</h3>
+        <span class="meta"><span class="from"><small>from</small><span data-price></span></span><span class="eta" data-eta></span><span class="go">Get this estimate <svg class="ic"><use href="#i-arrow"/></svg></span></span>
+      </button>
+      <button class="promo" type="button" data-d="phone" data-i="battery"><svg class="ic art"><use href="#i-battery"/></svg><h3>Phone battery swap</h3><span class="meta"><span class="from"><small>from</small><span data-price></span></span><span class="eta" data-eta></span></span></button>
+      <button class="promo" type="button" data-d="laptop" data-i="performance"><svg class="ic art"><use href="#i-laptop"/></svg><h3>Laptop speed-up service</h3><span class="meta"><span class="from"><small>from</small><span data-price></span></span><span class="eta" data-eta></span></span></button>
+      <button class="promo" type="button" data-d="laptop" data-i="battery"><svg class="ic art"><use href="#i-charging"/></svg><h3>Laptop battery replacement</h3><span class="meta"><span class="from"><small>from</small><span data-price></span></span><span class="eta" data-eta></span></span></button>
+      <button class="promo" type="button" data-d="audio" data-i="charging"><svg class="ic art"><use href="#i-audio"/></svg><h3>Earbuds charging fix</h3><span class="meta"><span class="from"><small>from</small><span data-price></span></span><span class="eta" data-eta></span></span></button>
+    </div>
+  </div>
+</section>
+
+<section class="band" id="pricing">
+  <div class="peek" aria-hidden="true"><img src="assets/exec-5a188e74-40c3-481e-85a4-bf4879485265.png" alt=""></div>
+  <div class="wrap">
+    <div class="head">
+      <p class="eyebrow">Transparent pricing</p>
+      <h2 class="display">Every base price, on one page</h2>
+      <p class="lede">These are starting prices for the most common models. Your exact quote comes after a partner has examined the device.</p>
+    </div>
+    <div class="price-grid">
+      <div>
+        <div class="table-scroll"><table id="priceTable"><caption hidden>Base price and repair time by device and issue</caption></table></div>
+        <p class="caption">Base prices in rupees, taxes included. Time is counted from pickup.</p>
+      </div>
+      <div class="covers">
+        <div><h3>Included in every repair</h3>
+          <ul class="ticks" style="margin-top:12px">
+            <li><svg class="ic"><use href="#i-check"/></svg>Pickup and return to your door</li>
+            <li><svg class="ic"><use href="#i-check"/></svg>Full diagnosis by the repair shop</li>
+            <li><svg class="ic"><use href="#i-check"/></svg>Labour and a standard replacement part</li>
+            <li><svg class="ic"><use href="#i-check"/></svg>Quality check and 90-day warranty</li>
+          </ul>
+        </div>
+        <div><h3>What can change the price</h3>
+          <ul class="ticks no" style="margin-top:12px">
+            <li><svg class="ic"><use href="#i-tag"/></svg>A premium model with costlier parts</li>
+            <li><svg class="ic"><use href="#i-tag"/></svg>Extra damage found during diagnosis</li>
+          </ul>
+        </div>
+        <p style="font-size:.9375rem;font-weight:600">If you say no to the final quote, we bring your device back. You pay nothing.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="track band" id="track">
+  <div class="wrap track-grid">
+    <div class="head" style="margin:0">
+      <p class="eyebrow">Track your repair</p>
+      <h2 class="display">Know where your device is, at every step</h2>
+      <p class="lede">Enter the repair ID from your booking message. You’ll see each handover as it happens.</p>
+      <form class="track-form" id="trackForm" novalidate>
+        <input type="text" id="trackId" placeholder="Repair ID, e.g. SO-48213" aria-label="Repair ID" autocomplete="off">
+        <button class="btn btn-primary" type="submit">Track</button>
+      </form>
+      <p class="caption" id="trackMsg" style="margin:0">Showing an example repair.</p>
+    </div>
+    <div class="ticket">
+      <div class="ticket-top">
+        <div><span class="tag">Example</span><p class="id" id="tkId" style="margin-top:8px">SO-48213</p></div>
+        <div style="color:var(--mute);font-size:.9375rem"><b style="color:var(--paper)">Phone · Screen</b><br>Return expected today, 6 to 8 PM</div>
+      </div>
+      <ol class="timeline">
+        <li class="done"><span class="dot"><svg class="ic"><use href="#i-check"/></svg></span><div><b>Pickup booked</b><span>9:12 AM</span></div></li>
+        <li class="done"><span class="dot"><svg class="ic"><use href="#i-check"/></svg></span><div><b>Picked up and sealed</b><span>11:40 AM · 4 photos saved</span></div></li>
+        <li class="done"><span class="dot"><svg class="ic"><use href="#i-check"/></svg></span><div><b>Final quote approved</b><span>12:25 PM · ₹1,499</span></div></li>
+        <li class="now"><span class="dot"></span><div><b>Repair and quality check</b><span>In progress at a verified shop 2 km away</span></div></li>
+        <li class="todo"><span class="dot"></span><div><b>Delivered back home</b><span>Pay after you check it works</span></div></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<section class="band" id="why">
+  <div class="wrap why-grid">
+    <div class="head">
+      <p class="eyebrow">Why Switch On</p>
+      <h2 class="display">Repairs without the errands</h2>
+      <p class="lede">No queue at a service centre, no guessing at the bill, and no wondering who has your device.</p>
+    </div>
+    <ul class="why-list">
+      <li><svg class="ic"><use href="#i-home"/></svg><h3>We come to you</h3><p>Pickup and return are free, in a 2-hour window you choose.</p></li>
+      <li><svg class="ic"><use href="#i-tag"/></svg><h3>You see the price first</h3><p>A base estimate before you book, and a final quote you approve before any work.</p></li>
+      <li><svg class="ic"><use href="#i-shield"/></svg><h3>Shops we have checked</h3><p>Only local repair shops that pass our four checks get your device.</p></li>
+      <li><svg class="ic"><use href="#i-clock"/></svg><h3>Covered for 90 days</h3><p>If the same fault comes back, we collect and fix it again at no cost.</p></li>
+    </ul>
+  </div>
+</section>
+
+<section class="partners band" id="partners">
+  <div class="wrap">
+    <div class="head">
+      <p class="eyebrow">Verified local partners</p>
+      <h2 class="display">Four checks before a shop touches your device</h2>
+      <span class="stamp">Verified partner</span>
+    </div>
+    <ul class="checks">
+      <li><svg class="ic"><use href="#i-id"/></svg><h3>Identity and shop licence</h3><p>We verify the owner’s ID and the shop’s registration in person.</p></li>
+      <li><svg class="ic"><use href="#i-repair"/></svg><h3>Hands-on skill test</h3><p>Technicians repair test devices at the bench before they join.</p></li>
+      <li><svg class="ic"><use href="#i-chip"/></svg><h3>Parts you can trace</h3><p>Every part is listed on your invoice as original or high-grade compatible.</p></li>
+      <li><svg class="ic"><use href="#i-star"/></svg><h3>Ratings that matter</h3><p>Shops must hold 4.5 stars or higher to keep receiving repairs.</p></li>
+    </ul>
+    <div class="handover">
+      <span><b>At your door:</b> a one-time code confirms the pickup partner.</span>
+      <span><b>In transit:</b> a tamper-evident bag, sealed in front of you.</span>
+      <span><b>On record:</b> photos of your device at pickup and return.</span>
+    </div>
+  </div>
+</section>
+
+<section class="shops band" id="shops">
+  <div class="wrap">
+    <div>
+      <p class="eyebrow">For repair shops</p>
+      <h2 class="display">Own a repair shop? Get doorstep orders from your neighbourhood.</h2>
+      <button class="btn btn-paper" type="button" id="shopApply">Apply as a partner <svg class="ic"><use href="#i-arrow"/></svg></button>
+    </div>
+    <ul class="ticks">
+      <li><svg class="ic"><use href="#i-check"/></svg>We handle pickup, delivery and customer support</li>
+      <li><svg class="ic"><use href="#i-check"/></svg>Weekly payouts to your bank account</li>
+      <li><svg class="ic"><use href="#i-check"/></svg>No listing fee. You pay only on completed repairs</li>
+    </ul>
+  </div>
+</section>
+
+<section class="band" id="warranty">
+  <div class="wrap cover-grid">
+    <div class="warranty">
+      <p class="eyebrow">Warranty</p>
+      <p class="big">90<span>days on every repair</span></p>
+      <div class="cols">
+        <div><h3>Covered</h3>
+          <ul class="ticks">
+            <li><svg class="ic"><use href="#i-check"/></svg>The same fault returning</li>
+            <li><svg class="ic"><use href="#i-check"/></svg>A faulty replacement part</li>
+            <li><svg class="ic"><use href="#i-check"/></svg>Free pickup for warranty claims</li>
+          </ul>
+        </div>
+        <div><h3>Not covered</h3>
+          <ul class="ticks no">
+            <li><svg class="ic"><use href="#i-x"/></svg>New drops, cracks or liquid damage</li>
+            <li><svg class="ic"><use href="#i-x"/></svg>Devices opened by another shop</li>
+            <li><svg class="ic"><use href="#i-x"/></svg>Faults unrelated to the repair</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="terms" id="terms">
+      <h3>Terms</h3>
+      <h2>The terms, in plain words</h2>
+      <dl>
+        <div><dt>Estimates and quotes</dt><dd>The price you see online is a base estimate. The final quote comes after diagnosis and needs your approval.</dd></div>
+        <div><dt>Payment</dt><dd>Pay on delivery by UPI, card or cash, once you have checked the repair.</dd></div>
+        <div><dt>Cancelling</dt><dd>Cancel free any time before the pickup partner sets off.</dd></div>
+        <div><dt>Your data</dt><dd>Back up before pickup if you can. Technicians open only what they need to test the repair.</dd></div>
+        <div><dt>If it can’t be fixed</dt><dd>We return the device as it was. You pay nothing.</dd></div>
+      </dl>
+    </div>
+  </div>
+</section>
+
+<section class="band faq" id="help" style="padding-top:0">
+  <div class="wrap faq-grid">
+    <div class="head" style="margin:0">
+      <p class="eyebrow">Help</p>
+      <h2 class="display">Questions people ask first</h2>
+      <div class="help-card"><b>Still stuck?</b>Message us from your booking confirmation and a person will reply, 8 AM to 10 PM every day.</div>
+    </div>
+    <div>
+      <details open><summary>How accurate is the base estimate?</summary><p>It is the starting price for the most common models. The shop confirms the final quote after examining your device, and nothing happens until you approve it.</p></details>
+      <details><summary>Who actually repairs my device?</summary><p>A verified repair shop near you. You’ll see the shop’s name and rating as soon as your device is assigned.</p></details>
+      <details><summary>Is my device safe during pickup?</summary><p>The pickup partner confirms a one-time code with you, photographs the device and seals it in a tamper-evident bag at your door.</p></details>
+      <details><summary>How long will I be without my device?</summary><p>Most phone repairs come back the same day. Water damage and laptop screen repairs can take one to four days. The estimator shows the time for your repair.</p></details>
+      <details><summary>What if I don’t accept the final quote?</summary><p>We bring your device back, free of charge.</p></details>
+      <details><summary>Do I need to be home for the pickup?</summary><p>Someone needs to hand over the device and share the pickup code. It can be a family member or a neighbour.</p></details>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="site">
+  <div class="wrap">
+    <a class="logo" href="#top"><svg viewBox="0 0 38 22" aria-hidden="true"><rect width="38" height="22" fill="var(--red)"/><rect x="20" y="4" width="14" height="14" fill="var(--paper)"/></svg>Switch On</a>
+    <nav aria-label="Footer"><a href="#how">How it works</a><a href="#pricing">Pricing</a><a href="#track">Track repair</a><a href="#warranty">Warranty</a><a href="#terms">Terms</a><a href="#help">Help</a></nav>
+    <span>© 2026 Switch On</span>
+  </div>
+  <p class="mega" aria-hidden="true">Switch On</p>
+</footer>
+
+<dialog id="book" aria-labelledby="bkTitle">
+  <div class="bk-top">
+    <span class="face"><img src="assets/exec-5a188e74-40c3-481e-85a4-bf4879485265.png" alt=""></span>
+    <h2 id="bkTitle">Book a doorstep pickup</h2>
+    <button class="icon-btn" type="button" id="bkClose" aria-label="Close"><svg class="ic"><use href="#i-x"/></svg></button>
+  </div>
+  <ol class="bk-steps" id="bkSteps"></ol>
+  <div class="bk-body">
+    <p class="bk-guide" id="bkGuide"><span class="face"><img src="assets/exec-5a188e74-40c3-481e-85a4-bf4879485265.png" alt=""></span><span id="bkHint"></span></p>
+    <div class="bk-panel" data-step="0"><h3>Which device needs fixing?</h3><div class="choices" id="bkDevices"></div></div>
+    <div class="bk-panel" data-step="1" hidden><h3>What’s wrong with it?</h3><div class="choices" id="bkIssues"></div></div>
+    <form class="bk-panel" data-step="2" id="bkAddr" novalidate hidden>
+      <h3>Where should we pick it up?</h3>
+      <div class="fields">
+        <div class="field"><label for="fName">Your name</label><input type="text" id="fName" autocomplete="name"><span class="err"></span></div>
+        <div class="field"><label for="fPhone">Mobile number</label><input type="tel" id="fPhone" inputmode="numeric" autocomplete="tel-national" placeholder="10 digits"><span class="err"></span></div>
+        <div class="field full"><label for="fLine">Flat or house number, and street</label><input type="text" id="fLine" autocomplete="address-line1"><span class="err"></span></div>
+        <div class="field"><label for="fArea">Area or landmark</label><input type="text" id="fArea" autocomplete="address-line2"><span class="err"></span></div>
+        <div class="field"><label for="fPin">PIN code</label><input type="text" id="fPin" inputmode="numeric" autocomplete="postal-code" placeholder="6 digits"><span class="err"></span></div>
+      </div>
+    </form>
+    <div class="bk-panel" data-step="3" hidden><h3>When should we come?</h3><div class="days" id="bkDays"></div><div class="slots" id="bkSlots"></div><p class="slot-err" id="slotErr"></p></div>
+    <div class="bk-panel" data-step="4" hidden><h3>Check your booking</h3><dl class="review" id="bkReview"></dl></div>
+    <div class="bk-panel" data-step="5" hidden>
+      <h3>Pickup scheduled</h3>
+      <p style="color:var(--mute)">Your repair ID</p>
+      <p class="done-id" id="doneId"></p>
+      <dl class="review" id="doneReview" style="margin-bottom:20px"></dl>
+      <p class="proto">This is a design prototype. No booking has been sent and no one will arrive.</p>
+    </div>
+  </div>
+  <p class="bk-sum" id="bkSum" hidden></p>
+  <div class="bk-foot">
+    <button class="btn btn-ghost" type="button" id="bkBack"><svg class="ic" style="transform:none"><use href="#i-back"/></svg>Back</button>
+    <button class="btn btn-primary" type="button" id="bkNext">Continue</button>
+  </div>
+</dialog>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+'use strict';
+var $=function(s,r){return (r||document).querySelector(s)}, $$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))};
+var reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ---------- Data ---------- */
+var DEVICES=[['phone','Phone'],['laptop','Laptop'],['tablet','Tablet'],['pc','PC'],['wearable','Wearable'],['audio','Audio']];
+var ISSUES=[['screen','Screen'],['battery','Battery'],['charging','Charging'],['water','Water damage'],['performance','Performance'],['other','Other']];
+// [base price in rupees, repair time, optional plain-language note]
+var PRICES={
+  phone:{screen:[1499,'3 to 4 hours'],battery:[899,'2 hours'],charging:[699,'2 to 3 hours'],water:[1299,'1 to 2 days'],performance:[499,'Same day'],other:[299,'After diagnosis']},
+  laptop:{screen:[3999,'1 to 2 days'],battery:[2499,'Same day'],charging:[1499,'1 to 2 days'],water:[2499,'2 to 4 days'],performance:[999,'Same day'],other:[499,'After diagnosis']},
+  tablet:{screen:[2499,'1 day'],battery:[1499,'Same day'],charging:[999,'1 day'],water:[1799,'2 to 3 days'],performance:[699,'Same day'],other:[399,'After diagnosis']},
+  pc:{screen:[1299,'1 day','For desktops, this covers monitor and display faults.'],battery:[599,'Same day','For desktops, this covers the UPS and clock battery.'],charging:[1499,'1 day','For desktops, this covers power supply and power-on faults.'],water:[1999,'2 to 4 days'],performance:[799,'Same day'],other:[399,'After diagnosis']},
+  wearable:{screen:[1799,'1 to 2 days'],battery:[999,'1 day'],charging:[799,'1 day'],water:[1299,'2 to 3 days'],performance:[499,'Same day'],other:[299,'After diagnosis']},
+  audio:{screen:[899,'1 to 2 days','Covers display panels on speakers and soundbars.'],battery:[699,'1 day'],charging:[599,'1 day'],water:[899,'2 to 3 days'],performance:[449,'Same day','Covers sound cutting out, pairing and low volume.'],other:[299,'After diagnosis']}
+};
+var OTHER_NOTE='This is the diagnosis fee. It is deducted from your repair bill.';
+function rupee(n){return '₹'+n.toLocaleString('en-IN')}
+function label(list,k){for(var i=0;i<list.length;i++)if(list[i][0]===k)return list[i][1];return ''}
+function icon(n){return '<svg class="ic"><use href="#i-'+n+'"/></svg>'}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+var toastT;function toast(m){var t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(function(){t.classList.remove('show')},3200)}
+
+function chips(box,list,sel,onPick){
+  box.innerHTML=list.map(function(it){return '<button class="chip" type="button" data-k="'+it[0]+'" aria-pressed="'+(it[0]===sel)+'">'+icon(it[0])+'<span>'+it[1]+'</span></button>'}).join('');
+  $$('.chip',box).forEach(function(b){b.addEventListener('click',function(){onPick(b.dataset.k)})});
+}
+
+/* ---------- Estimator ---------- */
+var est={device:'phone',issue:'screen'};
+function renderEst(){
+  chips($('#estDevices'),DEVICES,est.device,function(k){est.device=k;renderEst()});
+  chips($('#estIssues'),ISSUES,est.issue,function(k){est.issue=k;renderEst()});
+  var p=PRICES[est.device][est.issue];
+  $('#qIcon').setAttribute('href','#i-'+est.device);
+  $('#qFor').textContent=label(DEVICES,est.device)+' · '+label(ISSUES,est.issue);
+  $('#qPrice').textContent=rupee(p[0]);
+  $('#qTime').textContent=p[1];
+  $('#rpFor').textContent=$('#qFor').textContent;$('#rpPrice').textContent='from '+rupee(p[0]);$('#rpTime').textContent=p[1];
+  var note=p[2]||(est.issue==='other'?OTHER_NOTE:'');
+  $('#qNote').textContent=note;$('#qNote').hidden=!note;
+}
+renderEst();
+$('#estBook').addEventListener('click',function(){bk.device=est.device;bk.issue=est.issue;openBook(2)});
+
+/* Popular repairs feed the estimator */
+$$('.promo').forEach(function(b){
+  var p=PRICES[b.dataset.d][b.dataset.i];
+  $('[data-price]',b).textContent=rupee(p[0]);
+  $('[data-eta]',b).textContent=p[1];
+  b.addEventListener('click',function(){est.device=b.dataset.d;est.issue=b.dataset.i;renderEst();$('#estimate').scrollIntoView({behavior:reduce?'auto':'smooth'})});
+});
+
+/* Pricing table */
+(function(){
+  var h='<caption hidden>Base price and repair time by device and issue</caption><thead><tr><th scope="col">Issue</th>'+DEVICES.map(function(d){return '<th scope="col">'+d[1]+'</th>'}).join('')+'</tr></thead><tbody>';
+  ISSUES.forEach(function(i){
+    h+='<tr><th scope="row">'+i[1]+'</th>'+DEVICES.map(function(d){var p=PRICES[d[0]][i[0]];return '<td><b>'+rupee(p[0])+'</b><span>'+p[1]+'</span></td>'}).join('')+'</tr>';
+  });
+  $('#priceTable').innerHTML=h+'</tbody>';
+})();
+
+/* Track */
+$('#trackForm').addEventListener('submit',function(e){
+  e.preventDefault();
+  var v=$('#trackId').value.trim().toUpperCase();
+  if(!v){$('#trackMsg').textContent='Enter your repair ID. It starts with SO.';$('#trackId').focus();return}
+  $('#tkId').textContent=v;
+  $('#trackMsg').textContent='Live tracking is not connected in this prototype. Showing an example status for '+v+'.';
+});
+$('#shopApply').addEventListener('click',function(){toast('Partner applications are not connected in this prototype.')});
+
+/* Mobile nav */
+var navLinks=$('#navLinks'),navMenu=$('#navMenu');
+navMenu.addEventListener('click',function(){var o=navLinks.classList.toggle('open');navMenu.setAttribute('aria-expanded',o)});
+navLinks.addEventListener('click',function(){navLinks.classList.remove('open');navMenu.setAttribute('aria-expanded',false)});
+
+/* ---------- Booking flow ---------- */
+var dlg=$('#book');
+var STEPS=['Device','Issue','Address','Pickup slot','Review'];
+var HINTS=[
+  'Pick the device that needs fixing.',
+  'Not sure what’s wrong? Choose Other. The partner will check it at pickup.',
+  'This is where our partner will collect and return your device.',
+  'Pick a 2-hour window. We’ll text you when the partner is on the way.',
+  'Check the details. You pay only after you approve the final quote and the repair is done.',
+  'All set. Keep your device and charger ready for the pickup partner.'
+];
+var SLOTS=[[9,'9 to 11 AM'],[11,'11 AM to 1 PM'],[14,'2 to 4 PM'],[16,'4 to 6 PM'],[18,'6 to 8 PM']];
+var bk={device:null,issue:null,day:null,slot:null,step:0};
+var days=(function(){
+  var out=[],now=new Date();
+  for(var i=0;i<4;i++){var d=new Date(now.getFullYear(),now.getMonth(),now.getDate()+i);
+    out.push({i:i,name:i===0?'Today':i===1?'Tomorrow':d.toLocaleDateString('en-IN',{weekday:'long'}),date:d.toLocaleDateString('en-IN',{day:'numeric',month:'short'})});}
+  return out;
+})();
+function slotOpen(day,hour){return day>0||hour>new Date().getHours()+1}
+function firstOpenDay(){return SLOTS.some(function(s){return slotOpen(0,s[0])})?0:1}
+
+function openBook(step){
+  if(bk.day===null)bk.day=firstOpenDay();
+  bk.step=step||0;renderBook();
+  if(dlg.showModal)dlg.showModal();else dlg.setAttribute('open','');
+}
+function closeBook(){if(dlg.close)dlg.close();else dlg.removeAttribute('open');if(bk.step===5){bk.step=0;bk.slot=null}}
+function go(n){bk.step=n;renderBook();$('.bk-body').scrollTop=0}
+
+function addr(){return [$('#fLine').value.trim(),$('#fArea').value.trim(),$('#fPin').value.trim()].filter(Boolean).join(', ')}
+function slotText(){var d=days[bk.day];return d.name+', '+d.date+' · '+label(SLOTS,bk.slot)}
+
+function renderBook(){
+  var s=bk.step,done=s===5;
+  $('#bkSteps').innerHTML=STEPS.map(function(n,i){
+    var c=done||i<s?'done':i===s?'now':'';
+    return '<li class="'+c+'"><button type="button" data-go="'+i+'"'+(i<s&&!done?'':' tabindex="-1"')+(i===s?' aria-current="step"':'')+'><span>'+n+'</span></button></li>';
+  }).join('');
+  $$('#bkSteps button').forEach(function(b){b.addEventListener('click',function(){var n=+b.dataset.go;if(n<bk.step&&bk.step<5)go(n)})});
+  $('#bkTitle').textContent=done?'Booking confirmed':'Step '+(s+1)+' of 5 · '+STEPS[s];
+  $('#bkHint').textContent=HINTS[s];
+  $$('.bk-panel',dlg).forEach(function(p){p.hidden=+p.dataset.step!==s});
+
+  if(s===0)chips($('#bkDevices'),DEVICES,bk.device,function(k){bk.device=k;go(1)});
+  if(s===1)chips($('#bkIssues'),ISSUES,bk.issue,function(k){bk.issue=k;go(2)});
+  if(s===3)renderSlots();
+  var p=bk.device&&bk.issue?PRICES[bk.device][bk.issue]:null;
+  var rows=p?[
+    ['Repair',label(DEVICES,bk.device)+' · '+label(ISSUES,bk.issue),0],
+    ['Base estimate','from '+rupee(p[0])+'. Final quote after diagnosis.',-1],
+    ['Repair time',p[1],-1],
+    ['Pickup address',$('#fName').value.trim()+', '+addr(),2],
+    ['Mobile',$('#fPhone').value.trim(),2],
+    ['Pickup slot',bk.slot!==null?slotText():'',3]
+  ]:[];
+  if(s===4)$('#bkReview').innerHTML=rows.map(function(r){return '<div><dt>'+r[0]+'</dt><dd>'+esc(r[1])+'</dd>'+(r[2]>=0?'<button class="link" type="button" data-go="'+r[2]+'">Change</button>':'<span></span>')+'</div>'}).join('');
+  if(done)$('#doneReview').innerHTML=[rows[0],rows[5],rows[3],rows[1]].map(function(r){return '<div><dt>'+r[0]+'</dt><dd>'+esc(r[1])+'</dd><span></span></div>'}).join('');
+  $$('#bkReview .link').forEach(function(b){b.addEventListener('click',function(){go(+b.dataset.go)})});
+
+  var sum=$('#bkSum');sum.hidden=!p||s<2||done;
+  if(p)sum.innerHTML='<span>'+label(DEVICES,bk.device)+' · '+label(ISSUES,bk.issue)+'</span><b>from '+rupee(p[0])+'</b><span>'+p[1]+'</span><span>Final quote after diagnosis</span>';
+
+  var back=$('#bkBack'),next=$('#bkNext');
+  back.hidden=s===0||done;
+  next.textContent=done?'Track this repair':s===4?'Confirm pickup':'Continue';
+  next.disabled=(s===0&&!bk.device)||(s===1&&!bk.issue);
+  next.style.opacity=next.disabled?.45:1;
+}
+function renderSlots(){
+  $('#bkDays').innerHTML=days.map(function(d){return '<button class="opt" type="button" data-d="'+d.i+'" aria-pressed="'+(d.i===bk.day)+'">'+d.name+'<small>'+d.date+'</small></button>'}).join('');
+  $('#bkSlots').innerHTML=SLOTS.map(function(s){var ok=slotOpen(bk.day,s[0]);return '<button class="opt" type="button" data-s="'+s[0]+'" aria-pressed="'+(s[0]===bk.slot)+'"'+(ok?'':' disabled')+'>'+s[1]+(ok?'':'<small>No longer available</small>')+'</button>'}).join('');
+  $$('#bkDays .opt').forEach(function(b){b.addEventListener('click',function(){bk.day=+b.dataset.d;if(bk.slot!==null&&!slotOpen(bk.day,bk.slot))bk.slot=null;renderSlots()})});
+  $$('#bkSlots .opt').forEach(function(b){b.addEventListener('click',function(){bk.slot=+b.dataset.s;$('#slotErr').textContent='';renderSlots();renderBook()})});
+}
+var RULES=[
+  ['fName',function(v){return v.length>1},'Enter your name.'],
+  ['fPhone',function(v){return /^\d{10}$/.test(v.replace(/[\s-]/g,''))},'Enter a 10-digit mobile number.'],
+  ['fLine',function(v){return v.length>3},'Enter your flat or house number and street.'],
+  ['fArea',function(v){return v.length>1},'Enter your area or a landmark.'],
+  ['fPin',function(v){return /^\d{6}$/.test(v)},'Enter a 6-digit PIN code.']
+];
+function validAddr(){
+  var first=null;
+  RULES.forEach(function(r){var el=$('#'+r[0]),ok=r[1](el.value.trim()),f=el.parentNode;
+    f.classList.toggle('bad',!ok);$('.err',f).textContent=ok?'':r[2];if(!ok&&!first)first=el});
+  if(first)first.focus();
+  return !first;
+}
+RULES.forEach(function(r){$('#'+r[0]).addEventListener('input',function(e){var f=e.target.parentNode;if(f.classList.contains('bad')&&r[1](e.target.value.trim())){f.classList.remove('bad');$('.err',f).textContent=''}})});
+$('#bkAddr').addEventListener('submit',function(e){e.preventDefault();$('#bkNext').click()});
+$('#bkNext').addEventListener('click',function(){
+  var s=bk.step;
+  if(s===2&&!validAddr())return;
+  if(s===3&&bk.slot===null){$('#slotErr').textContent='Choose a pickup slot to continue.';return}
+  if(s===4){$('#doneId').textContent='SO-'+(10000+Math.floor(Math.random()*90000));return go(5)}
+  if(s===5){var id=$('#doneId').textContent;closeBook();$('#trackId').value=id;$('#tkId').textContent=id;$('#trackMsg').textContent='Live tracking is not connected in this prototype. Showing an example status for '+id+'.';$('#track').scrollIntoView({behavior:reduce?'auto':'smooth'});return}
+  go(s+1);
+});
+$('#bkBack').addEventListener('click',function(){if(bk.step>0)go(bk.step-1)});
+$('#bkClose').addEventListener('click',closeBook);
+dlg.addEventListener('click',function(e){if(e.target===dlg)closeBook()});
+dlg.addEventListener('close',function(){if(bk.step===5){bk.step=0;bk.slot=null}});
+
+/* ---------- Octopus ---------- */
+// The artwork is one flat image, so the life comes from layers around it: a slow float, pointer parallax with the
+// report card moving further than the art, a red glow and reticle that track the cursor, and scan lines on the report.
+(function(){
+  var hero=$('.hero'),img=$('#heroOcto'),art=$('.hero-art'),rp=$('.report'),cta=$('#heroCta');
+  if(!hero||!img||!art||!rp)return;
+  var scanT;
+  function scanReport(){rp.classList.remove('scan');void rp.offsetWidth;rp.classList.add('scan');clearTimeout(scanT);scanT=setTimeout(function(){rp.classList.remove('scan')},950)}
+
+  // Click: the report is stamped, then the page continues to the estimator.
+  if(cta&&!reduce)cta.addEventListener('click',function(e){
+    if(e.metaKey||e.ctrlKey||e.shiftKey||e.altKey||e.button)return;
+    e.preventDefault();
+    rp.classList.add('stamped');
+    setTimeout(function(){
+      var t=$('#estimate');t.scrollIntoView({behavior:'smooth'});
+      try{history.pushState(null,'','#estimate')}catch(err){}
+      t.setAttribute('tabindex','-1');t.focus({preventScroll:true});
+    },620);
+    setTimeout(function(){rp.classList.remove('stamped')},1700);
+  });
+  if(reduce)return;
+
+  var slab=$('.hero-slab'),glow=$('.hero-glow'),ret=$('.reticle'),line=$('.cta-scan');
+  var fine=window.matchMedia('(hover:hover) and (pointer:fine)'),desk=window.matchMedia('(min-width:1024px)');
+  var p={x:0,y:0,on:false,gx:0,gy:0},a=[0,0,1],r=[0,0],g=[0,0],over=false,running=false;
+  function frame(now){
+    var t=now/1000,k=.07;
+    // art: 12px of travel at the hero edge, plus a slow float and a breath of scale
+    var ax=p.x*24+Math.sin(t*.55)*1.5,ay=p.y*20+Math.sin(t*.9)*4,as=1+Math.sin(t*.9)*.004+(over?.014:0);
+    a[0]+=(ax-a[0])*k;a[1]+=(ay-a[1])*k;a[2]+=(as-a[2])*k;
+    img.style.transform='translate3d('+a[0].toFixed(2)+'px,'+a[1].toFixed(2)+'px,0) scale('+a[2].toFixed(4)+')';
+    // report card: sits in front, so it travels further and drifts on its own rhythm
+    var rx=p.x*40+Math.sin(t*.5+1)*2.5,ry=p.y*30+Math.cos(t*.7+2)*3;
+    r[0]+=(rx-r[0])*k;r[1]+=(ry-r[1])*k;
+    rp.style.translate=r[0].toFixed(2)+'px '+r[1].toFixed(2)+'px';
+    if(glow&&p.on){g[0]+=(p.gx-g[0])*.12;g[1]+=(p.gy-g[1])*.12;glow.style.transform='translate3d('+g[0].toFixed(1)+'px,'+g[1].toFixed(1)+'px,0)'}
+    if(running)requestAnimationFrame(frame);
+  }
+  function start(){if(!running){running=true;requestAnimationFrame(frame)}}
+  if('IntersectionObserver' in window){new IntersectionObserver(function(en){running=false;if(en[0].isIntersecting)start()},{rootMargin:'80px'}).observe(hero)}else start();
+
+  // Pointer effects are for mouse and trackpad only; touch devices keep the idle float.
+  function leave(){p.x=p.y=0;p.on=false;over=false;hero.classList.remove('live','on-octo')}
+  hero.addEventListener('pointermove',function(e){
+    if(e.pointerType==='touch'||!fine.matches)return;
+    var h=hero.getBoundingClientRect();
+    p.x=(e.clientX-h.left)/h.width-.5;p.y=(e.clientY-h.top)/h.height-.5;
+    if(slab){var s=slab.getBoundingClientRect();p.gx=e.clientX-s.left;p.gy=e.clientY-s.top;if(!p.on){g[0]=p.gx;g[1]=p.gy}}
+    p.on=true;hero.classList.add('live');
+    var b=art.getBoundingClientRect(),ix=b.width*.1,iy=b.height*.08;
+    var inside=desk.matches&&e.clientX>b.left+ix&&e.clientX<b.right-ix&&e.clientY>b.top+iy&&e.clientY<b.bottom-iy&&!(e.target.closest&&e.target.closest('a,button,.report,.assure'));
+    if(inside!==over){over=inside;hero.classList.toggle('on-octo',over);if(over)scanReport()}
+    if(over&&ret){ret.style.transform='translate3d('+(e.clientX-h.left).toFixed(1)+'px,'+(e.clientY-h.top).toFixed(1)+'px,0)';ret.classList.toggle('flip',e.clientX>h.right-220)}
+  },{passive:true});
+  hero.addEventListener('pointerleave',leave);
+
+  // A thin scan line runs from the main CTA to the report card on hover or keyboard focus.
+  if(cta&&line){
+    var lineT;
+    var draw=function(){
+      if(!fine.matches||!desk.matches)return;
+      var h=hero.getBoundingClientRect(),c=cta.getBoundingClientRect(),q=rp.getBoundingClientRect();
+      var x1=c.right-h.left+8,y1=c.top+c.height/2-h.top,dx=q.left-h.left-x1,dy=q.top+q.height/2-h.top-y1;
+      if(dx<12)return;
+      line.style.left=x1.toFixed(1)+'px';line.style.top=y1.toFixed(1)+'px';line.style.width=Math.hypot(dx,dy).toFixed(1)+'px';
+      line.style.transform='rotate('+(Math.atan2(dy,dx)*180/Math.PI).toFixed(2)+'deg)';
+      line.classList.add('go');clearTimeout(lineT);lineT=setTimeout(scanReport,430);
+    };
+    var clear=function(){clearTimeout(lineT);line.classList.remove('go')};
+    cta.addEventListener('pointerenter',function(e){if(e.pointerType!=='touch')draw()});
+    cta.addEventListener('focus',draw);
+    cta.addEventListener('pointerleave',clear);
+    cta.addEventListener('blur',clear);
+  }
+})();
+/* ---------- Diagnostic cursor and reactive background ---------- */
+// Mouse and trackpad only, and never with reduced motion: touch devices keep the native behaviour and a static background.
+(function(){
+  var fine=window.matchMedia('(hover:hover) and (pointer:fine)');
+  if(reduce||!fine.matches)return;
+  var root=document.documentElement,fx=$('.fx-bg');
+  var cur=document.createElement('div');cur.id='cur';cur.setAttribute('aria-hidden','true');
+  cur.innerHTML='<span class="cur-ring"><i><em></em></i></span><span class="cur-dot"><i></i></span>';
+  document.body.appendChild(cur);
+  var ring=cur.firstChild,dot=cur.lastChild;
+  var m=[-100,-100],d=[-100,-100],r=[-100,-100],hot=null,raf=0,seen=false,moveT,lockT;
+  var HOT='a,button,summary,label,[role="button"],tbody tr,.why-list li',TEXT='input,textarea,select,[contenteditable="true"]';
+  function tick(){
+    raf=0;
+    var tx=m[0],ty=m[1],k=.17;
+    if(hot&&hot.isConnected){
+      // over a control the ring tightens up and leans toward its centre
+      var b=hot.getBoundingClientRect();k=.3;
+      if(b.width<340&&b.height<120){tx+=(b.left+b.width/2-tx)*.22;ty+=(b.top+b.height/2-ty)*.22}
+    }
+    d[0]+=(m[0]-d[0])*.45;d[1]+=(m[1]-d[1])*.45;r[0]+=(tx-r[0])*k;r[1]+=(ty-r[1])*k;
+    dot.style.transform='translate3d('+d[0].toFixed(1)+'px,'+d[1].toFixed(1)+'px,0)';
+    ring.style.transform='translate3d('+r[0].toFixed(1)+'px,'+r[1].toFixed(1)+'px,0)';
+    if(Math.abs(m[0]-d[0])+Math.abs(m[1]-d[1])+Math.abs(tx-r[0])+Math.abs(ty-r[1])>.2)raf=requestAnimationFrame(tick);
+  }
+  function kick(){if(!raf)raf=requestAnimationFrame(tick)}
+  function off(){seen=false;root.classList.remove('cur-on');if(fx)fx.classList.remove('on','moving')}
+  window.addEventListener('pointermove',function(e){
+    if(e.pointerType==='touch')return;
+    m[0]=e.clientX;m[1]=e.clientY;
+    if(!seen){seen=true;d=[m[0],m[1]];r=[m[0],m[1]];root.classList.add('cur-on')}
+    cur.classList.remove('is-out');
+    if(fx){
+      fx.style.setProperty('--px',m[0].toFixed(0));fx.style.setProperty('--py',m[1].toFixed(0));
+      fx.style.setProperty('--mx',((m[0]/window.innerWidth-.5)*2).toFixed(3));fx.style.setProperty('--my',((m[1]/window.innerHeight-.5)*2).toFixed(3));
+      fx.classList.add('on','moving');clearTimeout(moveT);moveT=setTimeout(function(){fx.classList.remove('moving')},420);
+    }
+    kick();
+  },{passive:true});
+  document.addEventListener('pointerover',function(e){
+    if(e.pointerType==='touch')return;
+    var t=e.target,c=t.closest?t.closest(HOT):null;
+    hot=c&&!c.disabled?c:null;
+    cur.classList.toggle('is-hot',!!hot);
+    cur.classList.toggle('is-text',!!(t.closest&&t.closest(TEXT)));
+    kick();
+  },{passive:true});
+  document.addEventListener('pointerdown',function(e){
+    if(e.pointerType==='touch'){off();return}
+    cur.classList.remove('is-lock');void cur.offsetWidth;cur.classList.add('is-lock');
+    clearTimeout(lockT);lockT=setTimeout(function(){cur.classList.remove('is-lock')},300);
+  },{passive:true});
+  root.addEventListener('mouseleave',function(){cur.classList.add('is-out');if(fx)fx.classList.remove('on','moving')});
+  // A modal dialog renders above everything else, so the cursor moves inside it while it is open.
+  if(dlg&&'MutationObserver' in window)new MutationObserver(function(){(dlg.open?dlg:document.body).appendChild(cur)}).observe(dlg,{attributes:true,attributeFilter:['open']});
+})();
+})();
+</script>
+</body>
+</html>
