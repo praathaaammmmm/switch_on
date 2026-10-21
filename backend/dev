@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+# Local development helper. Usage: ./dev up | down | logs | test | psql | reset | token
+set -euo pipefail
+cd "$(dirname "$0")"
+
+ensure_env() {
+  if [[ ! -f .env ]]; then
+    echo "Creating .env with fresh random secrets (gitignored)…"
+    sed -e "s/^POSTGRES_PASSWORD=.*/POSTGRES_PASSWORD=$(openssl rand -hex 16)/" \
+        -e "s/^INTERNAL_API_TOKEN=.*/INTERNAL_API_TOKEN=$(openssl rand -hex 24)/" .env.example > .env
+  fi
+  set -a; source .env; set +a
+}
+
+wait_healthy() {
+  echo -n "Waiting for $1"
+  for _ in $(seq 1 120); do
+    [[ "$(docker inspect -f '{{.State.Health.Status}}' "switchon-$1-1" 2>/dev/null)" == healthy ]] && { echo " ready."; return; }
+    echo -n "."; sleep 2
+  done
+  echo; echo "$1 did not become healthy"; exit 1
+}
+
+case "${1:-up}" in
+  up)
+    ensure_env
+    ./gradlew -q installDist -x test
+    docker compose up -d --build
+    wait_healthy db; wait_healthy api
+    echo "API:      http://localhost:${API_PORT:-8080}/health"
+    echo "Postgres: localhost:${DB_PORT:-5433} (db switchon, user switchon, password in .env)"
+    ;;
+  down) docker compose down ;;
+  logs) docker compose logs -f api ;;
+  token) ensure_env; echo "$INTERNAL_API_TOKEN" ;;
+  psql) ensure_env; docker compose exec db psql -U switchon -d switchon ;;
+  reset)
+    read -r -p "Delete the local database volume? [y/N] " ok
+    [[ "$ok" == y ]] && docker compose down -v
+    ;;
+  test)
+    # Unit + integration tests. Each integration test class creates and drops its own throwaway database.
+    ensure_env
+    docker compose up -d db; wait_healthy db
+    TEST_DB_URL="jdbc:postgresql://localhost:${DB_PORT:-5433}/postgres" TEST_DB_USER=switchon TEST_DB_PASSWORD="$POSTGRES_PASSWORD" \
+      ./gradlew test "${@:2}"
+    ;;
+  *) echo "Usage: ./dev up | down | logs | test | psql | reset | token"; exit 1 ;;
+esac

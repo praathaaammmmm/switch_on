@@ -1,0 +1,23 @@
+# Local credentials and environment configuration
+.env
+.env.*
+!.env.example
+local.properties
+
+# Android / Gradle build products
+.gradle/
+**/build/
+*.apk
+*.aab
+*.jks
+*.keystore
+
+# Local database and container data
+postgres-data/
+*.sql
+
+# IDE and operating-system files
+.idea/
+*.iml
+.DS_Store
+Thumbs.db
