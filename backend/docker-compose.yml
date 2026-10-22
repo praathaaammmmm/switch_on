@@ -30,6 +30,8 @@ services:
       APP_ENV: ${APP_ENV:-development}
       INTERNAL_API_TOKEN: ${INTERNAL_API_TOKEN:-}
       SEED_DEMO_DATA: ${SEED_DEMO_DATA:-true}
+      ADMIN_OWNER_EMAIL: ${ADMIN_OWNER_EMAIL:-}
+      ADMIN_OWNER_PASSWORD: ${ADMIN_OWNER_PASSWORD:-}
       PORT: "8080"
     ports:
       - "${API_PORT:-8080}:8080"

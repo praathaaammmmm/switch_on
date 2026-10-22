@@ -18,12 +18,14 @@ Switch On helps customers understand device issues, receive transparent repair e
 - Offline-first repair caching and queued booking synchronization
 - Demo and production Android build flavors
 - Android **Device Check** diagnostic flow, designed as a preliminary software/function check—not a replacement for physical inspection
+- **Admin dashboard** (web) for operations: repairs, customers, pricing with history, partners, pickups, quotes, payments, claims, support, team roles and an immutable audit log
 
 ## Tech stack
 
 | Layer | Technology |
 |---|---|
 | Android app | Kotlin, Jetpack Compose |
+| Admin dashboard | React, TypeScript, Vite, React Router, TanStack Query |
 | Architecture | ViewModel, repository pattern, offline-first local storage |
 | Networking | REST API, Retrofit/OkHttp |
 | Background sync | WorkManager |
@@ -31,7 +33,7 @@ Switch On helps customers understand device issues, receive transparent repair e
 | Database | PostgreSQL |
 | Migrations | Flyway |
 | Local infrastructure | Docker Compose |
-| Testing | JUnit, backend integration tests, Android unit tests |
+| Testing | JUnit, backend integration tests, Android unit tests, Vitest |
 | Build | Gradle, JDK 21 |
 
 ## Project structure
@@ -39,7 +41,8 @@ Switch On helps customers understand device issues, receive transparent repair e
 ```text
 switch-on/
 ├── android/             # Kotlin + Jetpack Compose customer app
-├── backend/             # Ktor + PostgreSQL customer API
+├── backend/             # Ktor + PostgreSQL API (customer /v1 and staff /v1/admin)
+├── admin/               # React + TypeScript staff dashboard
 ├── assets/              # Brand artwork and visual assets
 ├── index.html           # Original Switch On web concept
 └── README.md
@@ -92,6 +95,17 @@ cd backend
 ./dev down
 ```
 
+### Run the admin dashboard
+
+```bash
+cd backend && ./dev admin     # prints the dashboard URL and the development owner's sign-in
+cd ../admin
+npm install
+npm run dev                   # http://localhost:5173
+```
+
+See [admin/README.md](admin/README.md) for roles, security and tests.
+
 ### Run the Android app
 
 Start the configured Android emulator:
@@ -125,6 +139,9 @@ cd backend
 
 cd ../android
 ./gradlew :app:testProdDebugUnitTest
+
+cd ../admin
+npm test
 ```
 
 See [backend/README.md](backend/README.md) for API, configuration, migrations, and lifecycle details; see [android/README.md](android/README.md) for Android flavors, offline behaviour, and builds.
@@ -133,7 +150,8 @@ See [backend/README.md](backend/README.md) for API, configuration, migrations, a
 
 - This is a student project and local-development platform.
 - Payments are recorded in the app but are not connected to a real payment provider.
-- Repair shops, couriers, status updates, and support-chat replies are simulated or development-controlled.
+- Repair shops and couriers have no app of their own yet: staff record their steps from the admin dashboard (or the development-only internal routes).
+- Refunds and reconciliation in the dashboard are records only; there is no payment gateway.
 - Device Check results are preliminary. They cannot confirm internal hardware damage, liquid damage, motherboard faults, cable damage, component calibration, or final repair pricing.
 - The production API URL must be configured before public deployment.
 - Never commit customer data, credentials, API keys, database passwords, or signing keys.
@@ -146,7 +164,6 @@ See [backend/README.md](backend/README.md) for API, configuration, migrations, a
 - Device-condition photo upload and custody records
 - Push, SMS, and WhatsApp repair notifications
 - Partner/technician workflow
-- Operations and admin dashboard
 - Additional cities, languages, and iOS support
 
 ## License

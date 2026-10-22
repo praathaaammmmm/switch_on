@@ -143,7 +143,12 @@ import kotlinx.serialization.Serializable
 @Serializable data class WarrantyClaimsResponse(val claims: List<WarrantyClaimDto>)
 
 @Serializable data class SupportTicketRequest(val clientRequestId: String, val repairId: String? = null, val topic: String, val detail: String)
-@Serializable data class SupportTicketDto(val id: String, val repairId: String?, val topic: String, val detail: String, val status: String, val createdAt: String)
+@Serializable data class TicketReplyDto(val body: String, val at: String)
+@Serializable data class SupportTicketDto(
+    val id: String, val repairId: String?, val topic: String, val detail: String, val status: String, val createdAt: String,
+    /** Replies from the Switch On team. Older apps ignore this field. */
+    val replies: List<TicketReplyDto> = emptyList(),
+)
 @Serializable data class SupportTicketsResponse(val tickets: List<SupportTicketDto>)
 
 // ---- Internal (development only) ----------------------------------------------------------------------------

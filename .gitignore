@@ -12,12 +12,20 @@ local.properties
 *.jks
 *.keystore
 
-# Local database and container data
+# Local database and container data (dumps). Flyway migrations are source code and stay tracked.
 postgres-data/
 *.sql
+!backend/src/main/resources/db/migration/*.sql
+*.dump
 
 # IDE and operating-system files
 .idea/
 *.iml
 .DS_Store
 Thumbs.db
+
+# Admin dashboard (Node)
+node_modules/
+admin/dist/
+admin/coverage/
+*.tsbuildinfo

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Local development helper. Usage: ./dev up | down | logs | test | psql | reset | token
+# Local development helper. Usage: ./dev up | down | logs | test | psql | reset | token | admin
 set -euo pipefail
 cd "$(dirname "$0")"
 
@@ -7,7 +7,13 @@ ensure_env() {
   if [[ ! -f .env ]]; then
     echo "Creating .env with fresh random secrets (gitignored)…"
     sed -e "s/^POSTGRES_PASSWORD=.*/POSTGRES_PASSWORD=$(openssl rand -hex 16)/" \
-        -e "s/^INTERNAL_API_TOKEN=.*/INTERNAL_API_TOKEN=$(openssl rand -hex 24)/" .env.example > .env
+        -e "s/^INTERNAL_API_TOKEN=.*/INTERNAL_API_TOKEN=$(openssl rand -hex 24)/" \
+        -e "s/^ADMIN_OWNER_PASSWORD=.*/ADMIN_OWNER_PASSWORD=$(openssl rand -base64 18 | tr -d '/+=')/" .env.example > .env
+  fi
+  # Older .env files predate the admin dashboard: add the development owner once.
+  if ! grep -q '^ADMIN_OWNER_EMAIL=' .env; then
+    { echo "ADMIN_OWNER_EMAIL=owner@switchon.local"; echo "ADMIN_OWNER_PASSWORD=$(openssl rand -base64 18 | tr -d '/+=')"; } >> .env
+    echo "Added a development admin owner to .env (./dev admin shows it)."
   fi
   set -a; source .env; set +a
 }
@@ -33,6 +39,7 @@ case "${1:-up}" in
   down) docker compose down ;;
   logs) docker compose logs -f api ;;
   token) ensure_env; echo "$INTERNAL_API_TOKEN" ;;
+  admin) ensure_env; echo "Dashboard: http://localhost:5173"; echo "Email:     $ADMIN_OWNER_EMAIL"; echo "Password:  $ADMIN_OWNER_PASSWORD" ;;
   psql) ensure_env; docker compose exec db psql -U switchon -d switchon ;;
   reset)
     read -r -p "Delete the local database volume? [y/N] " ok
@@ -45,5 +52,5 @@ case "${1:-up}" in
     TEST_DB_URL="jdbc:postgresql://localhost:${DB_PORT:-5433}/postgres" TEST_DB_USER=switchon TEST_DB_PASSWORD="$POSTGRES_PASSWORD" \
       ./gradlew test "${@:2}"
     ;;
-  *) echo "Usage: ./dev up | down | logs | test | psql | reset | token"; exit 1 ;;
+  *) echo "Usage: ./dev up | down | logs | test | psql | reset | token | admin"; exit 1 ;;
 esac

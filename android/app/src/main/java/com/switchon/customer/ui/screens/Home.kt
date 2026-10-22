@@ -8,7 +8,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.draw.clip
+import com.switchon.customer.data.Catalog
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -49,7 +54,6 @@ import com.switchon.customer.ui.go
 import com.switchon.customer.ui.HeroAction
 import com.switchon.customer.ui.heroRoute
 import com.switchon.customer.ui.switchTab
-import com.switchon.customer.ui.components.Stamp
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.heading
 import com.switchon.customer.ui.components.Btn
@@ -58,7 +62,6 @@ import com.switchon.customer.ui.components.Display
 import com.switchon.customer.ui.components.Eyebrow
 import com.switchon.customer.ui.components.LocalReducedMotion
 import com.switchon.customer.ui.components.OctoFace
-import com.switchon.customer.ui.components.OctoHero
 import com.switchon.customer.ui.components.Rule
 import com.switchon.customer.ui.components.StatusTag
 import com.switchon.customer.ui.components.Tick
@@ -82,7 +85,10 @@ fun HomeScreen(vm: AppViewModel, nav: NavHostController) {
         }
         Rule()
 
+        val address = vm.defaultAddress
         Hero(
+            serviceable = address != null && Catalog.isServiceable(address.pincode),
+            area = address?.area,
             onStart = { nav.go(vm.heroRoute(HeroAction.START_REPAIR)) },
             onCheck = { nav.go(vm.heroRoute(HeroAction.DEVICE_CHECK)) },
         )
@@ -103,37 +109,79 @@ fun HomeScreen(vm: AppViewModel, nav: NavHostController) {
 }
 
 /**
- * Compact welcome: headline, the octopus technician, both entry points and the trust strip. Short enough that an
- * active repair card still shows on the first screen of a standard phone.
+ * Compact welcome. Typography is the visual: the headline, then a small status card (technician avatar, pickup
+ * availability, how pricing works), both entry points and the trust strip. Short enough that an active repair card
+ * still shows on the first screen of a standard phone.
  */
 @Composable
-private fun Hero(onStart: () -> Unit, onCheck: () -> Unit) {
+private fun Hero(serviceable: Boolean, area: String?, onStart: () -> Unit, onCheck: () -> Unit) {
     val reduced = LocalReducedMotion.current
-    // Large text still grows, but the poster headline stops at 1.15x so the hero stays compact.
-    val scale = LocalDensity.current.fontScale
-    val headline = Type.h1.copy(fontSize = (40f * minOf(1f, 1.15f / scale)).sp, lineHeight = (38f * minOf(1f, 1.15f / scale)).sp)
-    Column(Modifier.fillMaxWidth().background(SO.ink).padding(16.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
-        Row(verticalAlignment = Alignment.Top) {
-            Column(
-                Modifier.weight(1f).scanLine(reduced, durationMs = 1000).semantics(mergeDescendants = true) { heading() },
-                verticalArrangement = Arrangement.spacedBy(10.dp),
-            ) {
-                Text("DOORSTEP REPAIR", style = Type.label, color = SO.mute)
-                Column {
-                    Display("Know the fault.", style = headline)
-                    Display("Know the price.", style = headline, color = SO.redHot)
-                }
-            }
-            Spacer(Modifier.width(12.dp))
-            Box {
-                OctoHero(Modifier.width(116.dp), height = 148.dp, tag = "On call")
-                Stamp("Verified", Modifier.align(Alignment.BottomStart).offset(x = (-8).dp, y = 10.dp), rotation = -7f, fill = SO.paper)
+    val fontScale = LocalDensity.current.fontScale
+    Column(Modifier.fillMaxWidth().background(SO.ink).padding(horizontal = 16.dp, vertical = 20.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        BoxWithConstraints(Modifier.fillMaxWidth()) {
+            // "KNOW THE PRICE." is about 6.2 dp per sp wide: size it to leave a margin on narrow phones, never above
+            // 52sp, and let large text grow it only up to 1.15x, so it always stays on two lines.
+            val size = minOf(52f * minOf(fontScale, 1.15f), maxWidth.value / 6.8f) / fontScale
+            val headline = Type.hero.copy(fontSize = size.sp, lineHeight = (size * 0.92f).sp)
+            Column(Modifier.scanLine(reduced, durationMs = 1000).semantics(mergeDescendants = true) { heading() }) {
+                Display("Know the fault.", style = headline)
+                Display("Know the price.", style = headline, color = SO.redHot)
             }
         }
         Text("Doorstep device repair, tracked from pickup to return.", style = Type.bodyL, color = SO.paper)
-        Btn("Start a repair", onStart, Modifier.fillMaxWidth())
-        Btn("Run device check", onCheck, Modifier.fillMaxWidth(), kind = BtnKind.OUTLINE, icon = null)
+        StatusCard(serviceable, area)
+        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Btn("Start a repair", onStart, Modifier.fillMaxWidth())
+            Btn("Run device check", onCheck, Modifier.fillMaxWidth(), kind = BtnKind.OUTLINE, icon = null)
+        }
         TrustStrip()
+    }
+}
+
+private val promises = listOf("Estimate" to "Up front", "Quote" to "Your call", "Tracking" to "Every step")
+
+/** Dark status card: who's on call, whether pickup reaches the customer, and the three pricing promises. */
+@Composable
+private fun StatusCard(serviceable: Boolean, area: String?) {
+    Column(Modifier.fillMaxWidth().background(SO.ink2).border(1.dp, SO.line2)) {
+        Row(Modifier.fillMaxWidth().padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+            Box(Modifier.size(44.dp).border(1.dp, SO.line2, CircleShape).padding(3.dp)) {
+                OctoFace(38.dp, Modifier.clip(CircleShape))
+            }
+            Spacer(Modifier.width(12.dp))
+            Column(Modifier.weight(1f)) {
+                Text("TECHNICIAN ON CALL", style = Type.label.copy(fontWeight = FontWeight.Bold), color = SO.paper)
+                Text(
+                    when {
+                        serviceable -> "Pickups today until 7 PM" + (area?.let { " · $it" } ?: "")
+                        area != null -> "Doorstep pickup isn't in $area yet"
+                        else -> "Add an address to check pickup"
+                    },
+                    style = Type.small, color = if (serviceable || area == null) SO.mute else SO.redHot,
+                )
+            }
+        }
+        Rule(SO.line)
+        // Three columns where each fits on one line; stacked rows on narrow phones with large text.
+        BoxWithConstraints(Modifier.fillMaxWidth()) {
+            val columns = maxWidth / 3 - 20.dp >= 84.dp * LocalDensity.current.fontScale
+            if (columns) Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min)) {
+                promises.forEachIndexed { i, (k, v) ->
+                    if (i > 0) Box(Modifier.width(1.dp).fillMaxHeight().background(SO.line))
+                    Column(Modifier.weight(1f).padding(10.dp).semantics(mergeDescendants = true) {}) {
+                        Text(k.uppercase(), style = Type.label.copy(fontSize = 10.sp), color = SO.mute, maxLines = 1)
+                        Text(v, style = Type.small.copy(fontWeight = FontWeight.SemiBold), color = SO.paper)
+                    }
+                }
+            } else Column(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp)) {
+                promises.forEach { (k, v) ->
+                    Row(Modifier.fillMaxWidth().padding(vertical = 4.dp).semantics(mergeDescendants = true) {}, verticalAlignment = Alignment.CenterVertically) {
+                        Text(k.uppercase(), style = Type.label.copy(fontSize = 10.sp), color = SO.mute, modifier = Modifier.weight(1f))
+                        Text(v, style = Type.small.copy(fontWeight = FontWeight.SemiBold), color = SO.paper)
+                    }
+                }
+            }
+        }
     }
 }
 

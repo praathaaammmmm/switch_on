@@ -47,8 +47,10 @@ Cleartext HTTP is allowed only in debug builds, and only to `10.0.2.2` and `loca
 
 ## Home and the Repairs hub
 
-- **Home** is a compact welcome: the "Know the fault. Know the price." hero with the octopus technician, *Start a
-  repair*, *Run device check* and the trust strip. Queued items and active repairs follow straight after, then a link
+- **Home** is a compact welcome. The black hero leads with the "Know the fault. Know the price." headline, sized to
+  the screen width. Below it are a dark status card (a small round technician avatar, pickup availability for the
+  default address, and the estimate, quote and tracking promises), then *Start a repair*, *Run device check* and
+  the trust strip. Queued items and active repairs follow straight after, then a link
   into the Repairs hub.
 - **Repairs** (bottom nav) is the hub, with jump links to four sections:
   - **My repairs:** Active, Completed and Cancelled tabs with every tracker, quote, payment, invoice, warranty and

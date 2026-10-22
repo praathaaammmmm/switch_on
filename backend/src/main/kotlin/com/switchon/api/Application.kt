@@ -28,7 +28,9 @@ fun main() {
     val config = Config.fromEnv()
     val db = Db.connect(config.databaseUrl, config.databaseUser, config.databasePassword)
     Db.migrate(db.dataSource)
-    embeddedServer(Netty, port = config.port) { module(Services(db, config)) }.start(wait = true)
+    val services = Services(db, config)
+    if (AdminAuth(services).seedOwner()) LoggerFactory.getLogger("api").warn("Created the development owner ${config.adminOwnerEmail} from ADMIN_OWNER_EMAIL")
+    embeddedServer(Netty, port = config.port) { module(services) }.start(wait = true)
 }
 
 @Serializable data class Health(val status: String, val environment: String)
@@ -51,6 +53,8 @@ fun Application.module(services: Services) {
     routing {
         get("/health") { call.respond(Health("ok", services.config.environment)) }
         route("/v1") { publicRoutes(services) }
+        // Staff dashboard: cookie sessions, role checks and an audit row for every change.
+        route("/v1/admin") { adminRoutes(AdminApi(services)) }
         if (services.config.internalRoutesEnabled) {
             log.warn("Internal development routes are ENABLED at /internal/v1")
             route("/internal/v1") { internalRoutes(services) }

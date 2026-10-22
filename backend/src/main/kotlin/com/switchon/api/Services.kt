@@ -29,7 +29,7 @@ class Services(val db: Db, val config: Config, val clock: Clock = Clock.systemUT
 
     fun now(): Instant = clock.instant()
     fun todayIst(): LocalDate = LocalDate.now(clock.withZone(IST))
-    private fun hourIst(): Int = ZonedDateTime.now(clock.withZone(IST)).hour
+    internal fun hourIst(): Int = ZonedDateTime.now(clock.withZone(IST)).hour
 
     // =========================================================================================================
     // Customers and sessions
@@ -69,7 +69,7 @@ class Services(val db: Db, val config: Config, val clock: Clock = Clock.systemUT
         } ?: throw unauthorized()
     }
 
-    private fun sha256(s: String) = MessageDigest.getInstance("SHA-256").digest(s.toByteArray()).joinToString("") { "%02x".format(it) }
+    internal fun sha256(s: String) = MessageDigest.getInstance("SHA-256").digest(s.toByteArray()).joinToString("") { "%02x".format(it) }
 
     // =========================================================================================================
     // Catalogue, serviceability and slots
@@ -82,7 +82,7 @@ class Services(val db: Db, val config: Config, val clock: Clock = Clock.systemUT
         val brands = query("SELECT * FROM device_brands ORDER BY sort_order") {
             it.getString("category_code") to BrandDto(it.getString("name"), it.getDouble("price_multiplier"), models[it.getInt("id")].orEmpty())
         }.groupBy({ it.first }, { it.second })
-        DevicesResponse(query("SELECT * FROM device_categories ORDER BY sort_order") {
+        DevicesResponse(query("SELECT * FROM device_categories WHERE active ORDER BY sort_order") {
             CategoryDto(it.getString("code"), it.getString("label"), brands[it.getString("code")].orEmpty())
         })
     }
@@ -90,7 +90,7 @@ class Services(val db: Db, val config: Config, val clock: Clock = Clock.systemUT
     fun issues(): IssuesResponse = db.tx {
         val byIssue = query(
             """SELECT e.*, i.label AS issue_label FROM service_catalog_entries e JOIN repair_issues i ON i.code = e.issue_code
-               JOIN device_categories c ON c.code = e.category_code ORDER BY c.sort_order"""
+               JOIN device_categories c ON c.code = e.category_code WHERE e.active AND c.active ORDER BY c.sort_order"""
         ) {
             it.getString("issue_code") to OfferingDto(
                 it.getString("category_code"), it.getInt("base_price_inr"), it.getString("turnaround"),
@@ -107,11 +107,12 @@ class Services(val db: Db, val config: Config, val clock: Clock = Clock.systemUT
 
     fun estimate(req: EstimateRequest): EstimateResponse = db.tx { estimateIn(this, req.deviceCategory, req.issue, req.brand) }
 
-    private fun estimateIn(tx: Tx, category: String, issue: String, brand: String?): EstimateResponse = with(tx) {
+    internal fun estimateIn(tx: Tx, category: String, issue: String, brand: String?): EstimateResponse = with(tx) {
         val entry = one(
             """SELECT e.base_price_inr, e.turnaround, coalesce(e.label_override, i.label) AS label
                FROM service_catalog_entries e JOIN repair_issues i ON i.code = e.issue_code
-               WHERE e.category_code = ? AND e.issue_code = ?""", category, issue,
+               JOIN device_categories c ON c.code = e.category_code
+               WHERE e.category_code = ? AND e.issue_code = ? AND e.active AND c.active""", category, issue,
         ) { Triple(it.getInt(1), it.getString(2), it.getString(3)) }
             ?: throw unprocessable("not_offered", "We don't offer that repair for this device yet.")
         val multiplier = if (brand.isNullOrBlank()) null else
@@ -125,13 +126,13 @@ class Services(val db: Db, val config: Config, val clock: Clock = Clock.systemUT
         ServiceabilityResponse(pin, serviceCity(this, pin) != null, serviceCity(this, pin))
     }
 
-    private fun serviceCity(tx: Tx, pin: String): String? =
+    internal fun serviceCity(tx: Tx, pin: String): String? =
         if (!Regex("^[1-9][0-9]{5}$").matches(pin)) null
         else tx.one("SELECT city FROM service_areas WHERE pincode_prefix = ? AND active", pin.take(3)) { it.getString(1) }
 
     fun slots(): SlotsResponse = db.tx { SlotsResponse(IST.id, slotsIn(this, excludeRepair = null)) }
 
-    private fun slotsIn(tx: Tx, excludeRepair: String?): List<SlotDto> = with(tx) {
+    internal fun slotsIn(tx: Tx, excludeRepair: String?): List<SlotDto> = with(tx) {
         val today = todayIst()
         val nowHour = hourIst()
         val templates = query("SELECT start_hour, capacity FROM pickup_slot_templates ORDER BY start_hour") { it.getInt(1) to it.getInt(2) }
@@ -201,7 +202,7 @@ class Services(val db: Db, val config: Config, val clock: Clock = Clock.systemUT
         ) throw notFound("Address not found.")
     }
 
-    private fun addressDto(rs: ResultSet) = AddressDto(
+    internal fun addressDto(rs: ResultSet) = AddressDto(
         rs.uuid("id").toString(), rs.getString("label"), rs.getString("line1"), rs.getString("line2"), rs.getString("area"),
         rs.getString("city"), rs.getString("pincode"), rs.getString("landmark"), rs.getBoolean("is_default"),
     )
@@ -210,7 +211,7 @@ class Services(val db: Db, val config: Config, val clock: Clock = Clock.systemUT
     // Repairs
     // =========================================================================================================
 
-    private class Row(rs: ResultSet) {
+    internal class Row(rs: ResultSet) {
         val id: String = rs.getString("id")
         val customerId: UUID = rs.uuid("customer_id")!!
         val status = RepairStatus.valueOf(rs.getString("status"))
@@ -225,7 +226,7 @@ class Services(val db: Db, val config: Config, val clock: Clock = Clock.systemUT
     }
 
     /** Loads a repair only if it belongs to [customerId]; others' repairs are indistinguishable from missing ones. */
-    private fun load(tx: Tx, customerId: UUID, id: String, lock: Boolean = false): Row =
+    internal fun load(tx: Tx, customerId: UUID, id: String, lock: Boolean = false): Row =
         tx.one("SELECT * FROM repairs WHERE id = ? AND customer_id = ?" + if (lock) " FOR UPDATE" else "", id, customerId) { Row(it) }
             ?: throw notFound("Repair not found.")
 
@@ -274,7 +275,7 @@ class Services(val db: Db, val config: Config, val clock: Clock = Clock.systemUT
         }
     }
 
-    private fun insertRepair(
+    internal fun insertRepair(
         tx: Tx, customerId: UUID, requestId: UUID, category: String, issue: String, brand: String?, model: String?, symptoms: List<String>,
         notes: String, photos: Int, low: Int, high: Int, turnaround: String, address: AddressDto, date: LocalDate, hour: Int,
         contactName: String, contactPhone: String, warrantyClaimFor: String?, status: RepairStatus = RepairStatus.PICKUP_REQUESTED,
@@ -417,7 +418,7 @@ class Services(val db: Db, val config: Config, val clock: Clock = Clock.systemUT
         return repair(customerId, id)
     }
 
-    private fun issueInvoice(tx: Tx, id: String, total: Int) {
+    internal fun issueInvoice(tx: Tx, id: String, total: Int) {
         val (taxable, cgst, sgst) = Pricing.gstSplit(total)
         val no = tx.one("SELECT nextval('invoice_number_seq')") { it.getLong(1) }!!
         tx.update("INSERT INTO invoices (id, repair_id, invoice_no, taxable_inr, cgst_inr, sgst_inr, total_inr, issued_at) VALUES (?,?,?,?,?,?,?,?)",
@@ -439,7 +440,7 @@ class Services(val db: Db, val config: Config, val clock: Clock = Clock.systemUT
         } ?: throw notFound("There's no invoice for this repair yet.")
     }
 
-    private fun amountDue(tx: Tx, r: Row): Int {
+    internal fun amountDue(tx: Tx, r: Row): Int {
         if (r.warrantyClaimFor != null) return 0
         val q = tx.one("SELECT decision, total_inr FROM quotes WHERE repair_id = ?", r.id) { it.getString(1) to it.getInt(2) } ?: return 0
         return if (q.first == "APPROVED") q.second else 0
@@ -448,7 +449,7 @@ class Services(val db: Db, val config: Config, val clock: Clock = Clock.systemUT
     // ---- Events and transitions -----------------------------------------------------------------------------
 
     /** Moves a repair between statuses after checking the transition table, and records the event. */
-    private fun transition(
+    internal fun transition(
         tx: Tx, id: String, from: RepairStatus, to: RepairStatus, actorType: String, actorName: String,
         title: String? = null, message: String? = null, kind: String = "STATUS", metadata: Map<String, String> = emptyMap(), at: Instant = now(),
     ) {
@@ -458,7 +459,7 @@ class Services(val db: Db, val config: Config, val clock: Clock = Clock.systemUT
         event(tx, id, to, actorType, actorName, title, message, kind, metadata, at)
     }
 
-    private fun event(
+    internal fun event(
         tx: Tx, id: String, status: RepairStatus?, actorType: String, actorName: String,
         title: String? = null, message: String? = null, kind: String = "STATUS", metadata: Map<String, String> = emptyMap(), at: Instant = now(),
     ) {
@@ -469,19 +470,19 @@ class Services(val db: Db, val config: Config, val clock: Clock = Clock.systemUT
         )
     }
 
-    private fun handover(tx: Tx, id: String, stage: String, seal: String, by: String, photos: Int, at: Instant = now()) {
+    internal fun handover(tx: Tx, id: String, stage: String, seal: String, by: String, photos: Int, at: Instant = now()) {
         tx.update("INSERT INTO handover_records (id, repair_id, stage, seal_code, handled_by, photo_count, occurred_at) VALUES (?,?,?,?,?,?,?)",
             UUID.randomUUID(), id, stage, seal, by, photos, at)
     }
 
-    private fun sealCode(): String {
+    internal fun sealCode(): String {
         val a = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
         return (1..4).map { a[random.nextInt(a.length)] }.joinToString("") + "-" + (1000 + random.nextInt(9000))
     }
 
     // ---- Assembly -------------------------------------------------------------------------------------------
 
-    private fun assemble(tx: Tx, customerId: UUID, id: String): RepairDto = with(tx) {
+    internal fun assemble(tx: Tx, customerId: UUID, id: String): RepairDto = with(tx) {
         one("SELECT * FROM repairs WHERE id = ? AND customer_id = ?", id, customerId) { rs ->
             val status = RepairStatus.valueOf(rs.getString("status"))
             val partner = rs.uuid("partner_id")?.let { pid ->
@@ -552,7 +553,8 @@ class Services(val db: Db, val config: Config, val clock: Clock = Clock.systemUT
         if (r.status != RepairStatus.WARRANTY_ACTIVE) return "Only paid, delivered repairs are covered."
         val ends = tx.one("SELECT ends_on FROM warranties WHERE repair_id = ?", repairId) { it.date(1) } ?: return "This repair has no warranty."
         if (todayIst().isAfter(ends)) return "Cover ended on $ends."
-        if (tx.one("SELECT 1 FROM warranty_claims WHERE original_repair_id = ? AND status = 'OPEN'", repairId) { 1 } != null) return "A claim for this repair is already open."
+        if (tx.one("SELECT 1 FROM warranty_claims WHERE original_repair_id = ? AND status IN ('OPEN', 'INFO_REQUESTED', 'APPROVED')", repairId) { 1 } != null)
+            return "A claim for this repair is already open."
         return null
     }
 
@@ -615,21 +617,26 @@ class Services(val db: Db, val config: Config, val clock: Clock = Clock.systemUT
     }
 
     private fun ticketBy(tx: Tx, customerId: UUID, requestId: UUID) =
-        tx.one("SELECT * FROM support_tickets WHERE customer_id = ? AND client_request_id = ?", customerId, requestId, map = ::ticketDto)
+        tx.one("SELECT * FROM support_tickets WHERE customer_id = ? AND client_request_id = ?", customerId, requestId, map = ::ticketDto)?.let { withReplies(tx, it) }
 
     fun tickets(customerId: UUID): List<SupportTicketDto> = db.tx {
-        query("SELECT * FROM support_tickets WHERE customer_id = ? ORDER BY created_at DESC", customerId, map = ::ticketDto)
+        query("SELECT * FROM support_tickets WHERE customer_id = ? ORDER BY created_at DESC", customerId, map = ::ticketDto).map { withReplies(this, it) }
     }
 
-    private fun ticketDto(rs: ResultSet) = SupportTicketDto(
+    internal fun ticketDto(rs: ResultSet) = SupportTicketDto(
         rs.getString("id"), rs.getString("repair_id"), rs.getString("topic"), rs.getString("detail"), rs.getString("status"), rs.instant("created_at").toString(),
     )
+
+    /** Adds the staff replies the customer may see. Internal notes never leave the admin API. */
+    private fun withReplies(tx: Tx, t: SupportTicketDto) = t.copy(replies = tx.query(
+        "SELECT body, created_at FROM ticket_messages WHERE ticket_id = ? AND visibility = 'CUSTOMER' ORDER BY id", t.id,
+    ) { TicketReplyDto(it.getString(1), it.instant("created_at").toString()) })
 
     // =========================================================================================================
     // Development-only operations (internal routes, demo seed)
     // =========================================================================================================
 
-    private fun loadAny(tx: Tx, id: String, lock: Boolean = true): Row =
+    internal fun loadAny(tx: Tx, id: String, lock: Boolean = true): Row =
         tx.one("SELECT * FROM repairs WHERE id = ?" + if (lock) " FOR UPDATE" else "", id) { Row(it) } ?: throw notFound("Repair not found.")
 
     /** Moves a repair one step along the happy path, doing what the partner and shop would. */
@@ -680,14 +687,14 @@ class Services(val db: Db, val config: Config, val clock: Clock = Clock.systemUT
         return repair(customer, id)
     }
 
-    private fun diagnose(tx: Tx, r: Row, shop: String, summary: String? = null, findings: List<String>? = null) {
+    internal fun diagnose(tx: Tx, r: Row, shop: String, summary: String? = null, findings: List<String>? = null) {
         val (_, d) = Pricing.mockQuote(r.issue, r.issue, r.estimateLow, r.estimateHigh)
         tx.update("INSERT INTO diagnoses (repair_id, summary, findings, diagnosed_at) VALUES (?,?,?,?) ON CONFLICT (repair_id) DO NOTHING",
             r.id, summary ?: d.summary, findings ?: d.findings, now())
         transition(tx, r.id, r.status, RepairStatus.DIAGNOSED, "SHOP", shop, message = summary ?: d.summary)
     }
 
-    private fun sendQuote(tx: Tx, r: Row, items: List<LineItemDto>?, shop: String) = with(tx) {
+    internal fun sendQuote(tx: Tx, r: Row, items: List<LineItemDto>?, shop: String) = with(tx) {
         val label = one("SELECT coalesce(e.label_override, i.label) FROM service_catalog_entries e JOIN repair_issues i ON i.code = e.issue_code WHERE e.category_code = ? AND e.issue_code = ?",
             r.category, r.issue) { it.getString(1) } ?: r.issue
         val lines = items ?: if (r.warrantyClaimFor != null) listOf(
@@ -714,7 +721,7 @@ class Services(val db: Db, val config: Config, val clock: Clock = Clock.systemUT
             metadata = mapOf("total" to total.toString()))
     }
 
-    private fun deliver(tx: Tx, r: Row, partner: String) = with(tx) {
+    internal fun deliver(tx: Tx, r: Row, partner: String) = with(tx) {
         update("UPDATE repairs SET delivered_at = ? WHERE id = ?", now(), r.id)
         val seal = one("SELECT seal_code FROM repairs WHERE id = ?", r.id) { it.getString(1) } ?: ""
         handover(this, r.id, "DELIVERY", seal, partner, 0)
@@ -762,7 +769,7 @@ class Services(val db: Db, val config: Config, val clock: Clock = Clock.systemUT
     // ---- Formatting helpers ----
 
     fun slotLabel(date: LocalDate, hour: Int) = "$date ${hour12(hour)} – ${hour12(hour + 2)} IST"
-    private fun hour12(h: Int) = "${((h + 11) % 12) + 1} ${if (h % 24 < 12) "AM" else "PM"}"
+    internal fun hour12(h: Int) = "${((h + 11) % 12) + 1} ${if (h % 24 < 12) "AM" else "PM"}"
     fun inr(n: Int): String = java.text.NumberFormat.getIntegerInstance(java.util.Locale("en", "IN")).format(n)
 
     // Seeder needs these.

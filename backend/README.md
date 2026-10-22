@@ -44,6 +44,9 @@ Everything comes from environment variables. Nothing secret is committed: `.env`
 | `INTERNAL_API_TOKEN` | no | Enables `/internal/v1` **only** when `APP_ENV=development` |
 | `SEED_DEMO_DATA` | no | `true` gives each new guest the demo repairs (development only) |
 | `PORT` | no | Listen port, default 8080 |
+| `ADMIN_OWNER_EMAIL`, `ADMIN_OWNER_PASSWORD` | no | Development only: the dashboard owner created on startup if that email doesn't exist yet. `./dev up` generates the password; `./dev admin` prints both |
+| `ADMIN_COOKIE_SECURE` | no | Force the `Secure` cookie flag in development (always on in production) |
+| `ADMIN_SESSION_HOURS` | no | Admin session lifetime, 1–24, default 12 |
 
 Compose also reads `POSTGRES_PASSWORD`, `DB_PORT` and `API_PORT` from `.env`.
 
@@ -55,7 +58,20 @@ Flyway runs on startup from `src/main/resources/db/migration`:
 - `V2__reference_data.sql`: catalogue (categories, brands, models, issues, INR base prices, turnaround),
   service areas (Bengaluru first), pickup windows, verified repair shops and pickup partners.
 
-Add a change as a new `V3__…sql` file; never edit an applied migration.
+- `V3__admin.sql`: the admin dashboard. It adds:
+  - staff and sessions
+  - an append-only audit log
+  - append-only price history
+  - service availability and diagnosis fees
+  - shop capabilities and capacity, technicians, and courier capacity
+  - internal repair notes, quote drafts, refunds and reconciliation
+  - claim review states, ticket assignment and messages
+
+  Additive only: the customer API is unchanged, except that inactive services are hidden and tickets include staff
+  replies (older apps ignore the new field).
+
+Add a change as a new `V4__…sql` file; never edit an applied migration. Migrations are tracked in git despite the
+root `*.sql` ignore rule, which is there for database dumps.
 
 Notes on the model:
 
@@ -126,6 +142,22 @@ is safe to show customers.
 | GET, POST | `/v1/warranty-claims` | Claim creates a ₹0 claim job with free pickup |
 | GET, POST | `/v1/support-tickets` | `{clientRequestId, repairId?, topic, detail}` |
 
+### Admin API (`/v1/admin`)
+
+The staff dashboard in [`../admin`](../admin/README.md) uses it. Sign-in is `POST /v1/admin/session`, which sets an
+`HttpOnly`, `SameSite=Strict` session cookie.
+
+- **Every change:**
+  - must send `X-Requested-With: switchon-admin`
+  - is checked against the caller's role (`AdminAuth.kt`, `Permission`)
+  - writes an `admin_audit_log` row in the same transaction
+- **Code:**
+  - `AdminRoutes.kt`: routes
+  - `AdminRepairs.kt`: repairs, customers, overview, audit
+  - `AdminCatalog.kt`: pricing, partners, areas
+  - `AdminOps.kt`: quotes, payments, claims, support, team
+- **Status changes** reuse the customer lifecycle (`Status.kt`). Quote decisions stay with the customer.
+
 ### Development-only routes
 
 Mounted at `/internal/v1` only when `APP_ENV=development` and `INTERNAL_API_TOKEN` is set. Each needs the
@@ -150,7 +182,7 @@ curl -X POST localhost:8080/internal/v1/repairs/SO-123456/advance -H "X-Internal
 ./dev test
 ```
 
-35 tests:
+58 tests:
 
 - **`PricingTest`, `StatusTest`:** estimate rounding, GST split, the transition table, and cancellation only before pickup.
 - **`ServicesTest`**, against a real database:
@@ -162,6 +194,16 @@ curl -X POST localhost:8080/internal/v1/repairs/SO-123456/advance -H "X-Internal
   - append-only events; idempotent tickets; the demo seed
 - **`ApiTest`:** the whole journey over HTTP: book, replay, advance, approve once, pay once, invoice, claim, ticket.
   Also auth and isolation, 4xx shapes, and internal routes being refused or absent in production.
+
+- **`AdminServicesTest`, `AdminApiTest`, `DelaysTest`:** the admin API:
+  - login, cookie flags, CSRF, throttling and per-role access
+  - session revocation on logout and deactivation
+  - repair filtering
+  - lifecycle-enforced status changes and assignment rules
+  - reason-required price updates with history, and historical estimates and quotes staying unchanged
+  - inactive services hidden from customers
+  - immutable audit rows (the database rejects edits)
+  - refund limits, claim reviews, customer-only ticket replies, and the last-owner rule
 
 Each database test class creates its own throwaway database (`switchon_test_<random>`) on the Postgres in
 `TEST_DB_URL`, migrates it, and drops it when done. `./dev test` passes the local container's credentials.
